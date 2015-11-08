@@ -133,6 +133,9 @@ public:
      * @return estimated gamma for RGB and Grayscale profiles
      */
     virtual QVector <double> getEstimatedTRC() const = 0;
+
+    virtual void LinearizeFloatValue(QVector <double> & Value) const = 0;
+    virtual void DelinearizeFloatValue(QVector <double> & Value) const = 0;
     
     virtual bool operator==(const KoColorProfile&) const = 0;
 

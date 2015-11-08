@@ -99,6 +99,8 @@ public:
     virtual QVector <double> getWhitePointXYZ() const;
     virtual QVector <double> getWhitePointxyY() const;
     virtual QVector <double> getEstimatedTRC() const;
+    virtual void LinearizeFloatValue(QVector <double> & Value) const;
+    virtual void DelinearizeFloatValue(QVector <double> & Value) const;
     virtual bool operator==(const KoColorProfile&) const;
     virtual QString type() const { return "icc"; }
 

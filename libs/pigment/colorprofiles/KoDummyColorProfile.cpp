@@ -86,10 +86,19 @@ QVector<double> KoDummyColorProfile::getWhitePointxyY() const
 }
 
 QVector <double> KoDummyColorProfile::getEstimatedTRC() const
+
 {
     QVector<double> Dummy(3);
     Dummy.fill(2.2);
     return Dummy;
+}
+
+void KoDummyColorProfile::LinearizeFloatValue(QVector <double> & Value) const
+{
+}
+
+void KoDummyColorProfile::DelinearizeFloatValue(QVector <double> & Value) const
+{
 }
 
 bool KoDummyColorProfile::operator==(const KoColorProfile& rhs) const

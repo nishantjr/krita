@@ -211,11 +211,19 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setRGBData(whitepoint, colorants);
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
+        QString estimatedCurve = " Estimated curve: ";	
+    	for (int i=0; i<=10; i++)
+	    {
+	    	QVector <double> linear(3);
+            linear.fill(i*0.1);            
+            currentColorSpace()->profile()->LinearizeFloatValue(linear);
+            estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
+	    }
         if (estimatedTRC[0] == -1) {
-            d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB);
+            d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB+estimatedCurve);
             d->colorSpaceSelector->lbltrc->setText(estimatedsRGB);
         } else {
-            d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0]) + "," + QString::number(estimatedTRC[1]) + "," + QString::number(estimatedTRC[2]));
+            d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0]) + "," + QString::number(estimatedTRC[1]) + "," + QString::number(estimatedTRC[2])+estimatedCurve);
             d->colorSpaceSelector->lbltrc->setText(estimatedGamma + QString::number((estimatedTRC[0] + estimatedTRC[1] + estimatedTRC[2])/3));
         }
     }
@@ -223,11 +231,19 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setGrayData(whitepoint);
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
+        QString estimatedCurve = " Estimated curve: ";	
+    	for (int i=0; i<=10; i++)
+	    {
+	    	QVector <double> linear(3);
+	    	linear.fill(i*0.1);
+            currentColorSpace()->profile()->LinearizeFloatValue(linear);
+	    	estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
+	    }
         if (estimatedTRC[0] == -1) {
-            d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB);
+            d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB+estimatedCurve);
             d->colorSpaceSelector->lbltrc->setText(estimatedsRGB);
         } else {
-            d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0]));
+            d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0])+estimatedCurve);
             d->colorSpaceSelector->lbltrc->setText(estimatedGamma + QString::number(estimatedTRC[0]));
         }
     }
@@ -244,9 +260,18 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         d->colorSpaceSelector->lbltrc->setText(estimatedGamma + "1.0");
     }
     else if (currentModelStr == "LABA") {
+        estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
+        QString estimatedCurve = " Estimated curve: ";	
+    	for (int i=0; i<=10; i++)
+	    {
+	    	QVector <double> linear(3);
+	    	linear.fill(i*0.1);
+            currentColorSpace()->profile()->LinearizeFloatValue(linear);
+	    	estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
+	    }
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setLABData(whitepoint);
-        d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","This is assumed to be the L * TRC."));
+        d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","This is assumed to be the L * TRC. ")+estimatedCurve);
         d->colorSpaceSelector->lbltrc->setText(estimatedGamma + "L*");
     }
     else if (currentModelStr == "YCbCrA") {

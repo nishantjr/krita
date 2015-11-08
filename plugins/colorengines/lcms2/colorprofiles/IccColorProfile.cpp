@@ -190,6 +190,18 @@ QVector <double> IccColorProfile::getEstimatedTRC() const
         return d->shared->lcmsProfile->getEstimatedTRC();
     return dummy;
 }
+
+void IccColorProfile::LinearizeFloatValue(QVector <double> & Value) const
+{
+    if (d->shared->lcmsProfile)
+        d->shared->lcmsProfile->LinearizeFloatValue(Value);
+}
+void IccColorProfile::DelinearizeFloatValue(QVector <double> & Value) const
+{
+    if (d->shared->lcmsProfile)
+        d->shared->lcmsProfile->DelinearizeFloatValue(Value);
+}
+
 bool IccColorProfile::load()
 {
     QFile file(fileName());
