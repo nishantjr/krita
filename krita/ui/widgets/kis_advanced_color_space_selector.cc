@@ -77,6 +77,7 @@ KisAdvancedColorSpaceSelector::KisAdvancedColorSpaceSelector(QWidget* parent, co
     connect(this, SIGNAL(selectionChanged(bool)),
             this, SLOT(fillDescription()));
     connect(this, SIGNAL(selectionChanged(bool)), d->colorSpaceSelector->TongueWidget, SLOT(repaint()));
+    connect(this, SIGNAL(selectionChanged(bool)), d->colorSpaceSelector->TRCwidget, SLOT(repaint()));
 
     connect(d->colorSpaceSelector->bnInstallProfile, SIGNAL(clicked()), this, SLOT(installProfile()));
 
@@ -205,20 +206,31 @@ void KisAdvancedColorSpaceSelector::fillDescription()
 
     if (profileList.isEmpty()) {
         d->colorSpaceSelector->TongueWidget->setProfileDataAvailable(false);
+        d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
     }
     else if (currentModelStr == "RGBA") {
         QVector <double> colorants = currentColorSpace()->profile()->getColorantsxyY();
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setRGBData(whitepoint, colorants);
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
-        QString estimatedCurve = " Estimated curve: ";	
-    	for (int i=0; i<=10; i++)
-	    {
-	    	QVector <double> linear(3);
+        QString estimatedCurve = " Estimated curve: ";
+        QPolygonF redcurve;
+        QPolygonF greencurve;
+        QPolygonF bluecurve;
+        for (int i=0; i<=10; i++) {
+            QVector <double> linear(3);
             linear.fill(i*0.1);            
             currentColorSpace()->profile()->LinearizeFloatValue(linear);
             estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
-	    }
+            QPointF tonepoint(linear[0],i*0.1);
+            redcurve<<tonepoint;
+            tonepoint.setX(linear[1]);
+            greencurve<<tonepoint;
+            tonepoint.setX(linear[2]);
+            bluecurve<<tonepoint;
+        }
+        d->colorSpaceSelector->TRCwidget->setRGBCurve(redcurve, greencurve, bluecurve);
+
         if (estimatedTRC[0] == -1) {
             d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB+estimatedCurve);
             d->colorSpaceSelector->lbltrc->setText(estimatedsRGB);
@@ -231,14 +243,17 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setGrayData(whitepoint);
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
-        QString estimatedCurve = " Estimated curve: ";	
-    	for (int i=0; i<=10; i++)
-	    {
-	    	QVector <double> linear(3);
-	    	linear.fill(i*0.1);
+        QString estimatedCurve = " Estimated curve: ";
+        QPolygonF tonecurve;
+        for (int i=0; i<=10; i++) {
+            QVector <double> linear(3);
+            linear.fill(i*0.1);            
             currentColorSpace()->profile()->LinearizeFloatValue(linear);
-	    	estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
-	    }
+            estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
+            QPointF tonepoint(linear[0],i*0.1);
+            tonecurve<<tonepoint;
+        }
+        d->colorSpaceSelector->TRCwidget->setGreyscaleCurve(tonecurve);
         if (estimatedTRC[0] == -1) {
             d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB+estimatedCurve);
             d->colorSpaceSelector->lbltrc->setText(estimatedsRGB);
@@ -250,10 +265,22 @@ void KisAdvancedColorSpaceSelector::fillDescription()
     else if (currentModelStr == "CMYKA") {
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setCMYKData(whitepoint);
+        d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
         d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for CMYK."));
         d->colorSpaceSelector->lbltrc->setText(estimatedGamma + notApplicable);
     }
     else if (currentModelStr == "XYZA") {
+        QString estimatedCurve = " Estimated curve: ";
+        QPolygonF tonecurve;
+        for (int i=0; i<=10; i++) {
+            QVector <double> linear(3);
+            linear.fill(i*0.1);            
+            currentColorSpace()->profile()->LinearizeFloatValue(linear);
+            estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
+            QPointF tonepoint(linear[0],i*0.1);
+            tonecurve<<tonepoint;
+        }
+        d->colorSpaceSelector->TRCwidget->setGreyscaleCurve(tonecurve);
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setXYZData(whitepoint);
         d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","XYZ is assumed to be linear Gamma."));
@@ -261,14 +288,17 @@ void KisAdvancedColorSpaceSelector::fillDescription()
     }
     else if (currentModelStr == "LABA") {
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
-        QString estimatedCurve = " Estimated curve: ";	
-    	for (int i=0; i<=10; i++)
-	    {
-	    	QVector <double> linear(3);
-	    	linear.fill(i*0.1);
+        QString estimatedCurve = " Estimated curve: ";
+        QPolygonF tonecurve;
+        for (int i=0; i<=10; i++) {
+            QVector <double> linear(3);
+            linear.fill(i*0.1);            
             currentColorSpace()->profile()->LinearizeFloatValue(linear);
-	    	estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
-	    }
+            estimatedCurve = estimatedCurve + ", " + QString::number(linear[0]);
+            QPointF tonepoint(linear[0],i*0.1);
+            tonecurve<<tonepoint;
+        }
+        d->colorSpaceSelector->TRCwidget->setGreyscaleCurve(tonecurve);
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setLABData(whitepoint);
         d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","This is assumed to be the L * TRC. ")+estimatedCurve);
