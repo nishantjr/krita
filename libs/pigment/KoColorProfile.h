@@ -134,7 +134,19 @@ public:
      */
     virtual QVector <double> getEstimatedTRC() const = 0;
 
+    /**
+     * Linearizes a QVector of 3 doubles long, if it's possible to Linearize
+     * if not, returns the same QVector
+     */
     virtual void LinearizeFloatValue(QVector <double> & Value) const = 0;
+    /**
+     * @return if the profile has a TRC(required for linearisation).
+     */
+    virtual bool hasTRC() const = 0;
+    /**
+     * Delinearizes a QVector of 3 doubles long, if it's possible to delinearize
+     * if not, returns the same QVector. Effectively undoes LinearizeFloatValue.
+     */
     virtual void DelinearizeFloatValue(QVector <double> & Value) const = 0;
     
     virtual bool operator==(const KoColorProfile&) const = 0;

@@ -154,6 +154,12 @@ bool IccColorProfile::hasColorants() const
         return d->shared->lcmsProfile->hasColorants();
     return false;
 }
+bool IccColorProfile::hasTRC() const
+{
+    if (d->shared->lcmsProfile)
+        return d->shared->lcmsProfile->hasTRC();
+    return false;
+}
 QVector <double> IccColorProfile::getColorantsXYZ() const
 {
     if (d->shared->lcmsProfile)

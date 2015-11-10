@@ -48,6 +48,7 @@ public:
     bool valid;
     bool suitableForOutput;
     bool hasColorants;
+    bool hasTRC;
     bool adaptedFromD50;
     cmsNAMEDCOLORLIST *namedColorList;
     cmsCIEXYZ mediaWhitePoint;
@@ -192,9 +193,13 @@ bool LcmsColorProfileContainer::init()
             d->redTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigRedTRCTag));
             d->greenTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigGreenTRCTag));
             d->blueTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigBlueTRCTag));
+            d->hasTRC = true;
         
         } else if (cmsIsTag(d->profile, cmsSigGrayTRCTag)) {
             d->grayTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigGrayTRCTag));
+            d->hasTRC = true;
+        } else {
+            d->hasTRC = false;
         }
         
         
@@ -250,6 +255,10 @@ bool LcmsColorProfileContainer::isSuitableForDisplay() const
 bool LcmsColorProfileContainer::hasColorants() const
 {
     return d->hasColorants;
+}
+bool LcmsColorProfileContainer::hasTRC() const
+{
+    return d->hasTRC;
 }
 QVector <double> LcmsColorProfileContainer::getColorantsXYZ() const
 {
