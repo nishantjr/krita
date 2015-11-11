@@ -153,8 +153,7 @@ void KisCanvasControlsManager::transformHue(int step)
         int h = 0, s = 0, v = 0;
         rgb.getHsl(&h,&s,&v);
         h += -step;
-        if (h>1.0 || h<0.0){h=fmod(h, 1.0);}
-        h = qBound(0,s,255);
+        if (h>360.0 || h<0.0){h=fmod(h, 360.0);}
         rgb.setHsl(h,s,v);
         color.fromQColor(rgb);
     } else if (step<0){

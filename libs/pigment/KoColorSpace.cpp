@@ -343,12 +343,22 @@ void KoColorSpace::increaseLuminosity(quint8 * pixel, qreal step) const{
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValues[i]=channelValuesF[i];
     }
-    profile()->LinearizeFloatValue(channelValues);
-    qreal hue, sat, luma = 0.0;
-    toHSY(channelValues, &hue, &sat, &luma);
-    luma += step;
-    channelValues = fromHSY(&hue, &sat, &luma);
+    if (profile()->hasTRC()){
+        //only linearise and crunch the luma if there's a TRC
+        profile()->LinearizeFloatValue(channelValues);
+        qreal hue, sat, luma = 0.0;
+        toHSY(channelValues, &hue, &sat, &luma);
+        luma = pow(luma, 1/2.2);
+        luma += step;
+        luma = pow(luma, 2.2);
+        channelValues = fromHSY(&hue, &sat, &luma);
     profile()->DelinearizeFloatValue(channelValues);
+    } else {
+        qreal hue, sat, luma = 0.0;
+        toHSY(channelValues, &hue, &sat, &luma);
+        luma += step;
+        channelValues = fromHSY(&hue, &sat, &luma);
+    }
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValuesF[i]=channelValues[i];
     }
@@ -361,12 +371,22 @@ void KoColorSpace::decreaseLuminosity(quint8 * pixel, qreal step) const {
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValues[i]=channelValuesF[i];
     }
-    profile()->LinearizeFloatValue(channelValues);
-    qreal hue, sat, luma = 0.0;
-    toHSY(channelValues, &hue, &sat, &luma);
-    luma -= step;
-    channelValues = fromHSY(&hue, &sat, &luma);
+    if (profile()->hasTRC()){
+        //only linearise and crunch the luma if there's a TRC
+        profile()->LinearizeFloatValue(channelValues);
+        qreal hue, sat, luma = 0.0;
+        toHSY(channelValues, &hue, &sat, &luma);
+        luma = pow(luma, 1/2.2);
+        luma -= step;
+        luma = pow(luma, 2.2);
+        channelValues = fromHSY(&hue, &sat, &luma);
     profile()->DelinearizeFloatValue(channelValues);
+    } else {
+        qreal hue, sat, luma = 0.0;
+        toHSY(channelValues, &hue, &sat, &luma);
+        luma -= step;
+        channelValues = fromHSY(&hue, &sat, &luma);
+    }
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValuesF[i]=channelValues[i];
     }
@@ -436,8 +456,11 @@ void KoColorSpace::decreaseHue(quint8 * pixel, qreal step) const{
     profile()->LinearizeFloatValue(channelValues);
     qreal hue, sat, luma = 0.0;
     toHSY(channelValues, &hue, &sat, &luma);
-    hue -= step;
-    if (hue<0.0){hue=1.0-hue;}
+    if (hue-step<0.0){
+        hue=1.0-(step-hue);
+    } else {
+        hue -= step;
+    }
     channelValues = fromHSY(&hue, &sat, &luma);
     profile()->DelinearizeFloatValue(channelValues);
     for (int i=0;i<abs(colorChannelCount());i++){
