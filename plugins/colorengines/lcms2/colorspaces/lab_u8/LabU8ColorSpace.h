@@ -49,6 +49,8 @@ public:
     virtual KoColorSpace* clone() const;
     virtual void colorToXML(const quint8* pixel, QDomDocument& doc, QDomElement& colorElt) const;
     virtual void colorFromXML(quint8* pixel, const QDomElement& elt) const;
+    virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const;
+    virtual QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const;
 
 private:
     static const quint32 MAX_CHANNEL_L = 100;

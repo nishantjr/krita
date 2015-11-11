@@ -43,11 +43,17 @@ public:
 private Q_SLOTS:
     void makeColorLighter();
     void makeColorDarker();
+    void makeColorDesaturated();
+    void makeColorSaturated();
+    void shiftHueClockWise();
+    void shiftHueCounterClockWise();
 
     void increaseOpacity();
     void decreaseOpacity();
 private:
     void transformColor(int step);
+    void transformSaturation(int step);
+    void transformHue(int step);
     void stepAlpha(float step);
 
 private:

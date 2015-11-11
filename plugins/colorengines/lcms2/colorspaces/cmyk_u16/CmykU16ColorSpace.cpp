@@ -73,3 +73,15 @@ void CmykU16ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) cons
     p->black = KoColorSpaceMaths< qreal, CmykU16Traits::channels_type >::scaleToA(elt.attribute("k").toDouble());
     p->alpha = KoColorSpaceMathsTraits<quint16>::max;
 }
+
+void CmykU16ColorSpace::toHSY(QVector <double> , qreal *, qreal *, qreal *) const
+{
+    
+}
+
+QVector <double> CmykU16ColorSpace::fromHSY(qreal *, qreal *, qreal *) const
+{
+    QVector <double> dummy(5);
+    dummy.fill(1.0);
+    return dummy;
+}

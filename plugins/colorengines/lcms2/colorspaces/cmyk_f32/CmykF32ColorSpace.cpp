@@ -79,4 +79,14 @@ void CmykF32ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) cons
     p->alpha = 1.0;
 }
 
+void CmykF32ColorSpace::toHSY(QVector <double> , qreal *, qreal *, qreal *) const
+{
+    
+}
 
+QVector <double> CmykF32ColorSpace::fromHSY(qreal *, qreal *, qreal *) const
+{
+    QVector <double> dummy(5);
+    dummy.fill(1.0);
+    return dummy;
+}

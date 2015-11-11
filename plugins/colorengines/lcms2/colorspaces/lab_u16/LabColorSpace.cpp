@@ -91,3 +91,20 @@ void LabU16ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) const
     p->b = KoColorSpaceMaths< qreal, KoLabU16Traits::channels_type >::scaleToA(elt.attribute("b").toDouble());
     p->alpha = KoColorSpaceMathsTraits<quint16>::max;
 }
+void LabU16ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
+{
+    //TODO: Change this to LCH proper//
+    *luma = channelValues[0];
+    *sat = channelValues[1];
+    *hue = channelValues[2];
+}
+
+QVector <double> LabU16ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> channelValues(4);
+    channelValues[0]=*luma;
+    channelValues[1]=*sat;
+    channelValues[2]=*hue;
+    channelValues[3]=1.0;
+    return channelValues;
+}

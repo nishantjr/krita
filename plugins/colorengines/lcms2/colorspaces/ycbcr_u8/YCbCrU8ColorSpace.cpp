@@ -68,3 +68,20 @@ void YCbCrU8ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) cons
     p->alpha = KoColorSpaceMathsTraits<quint8>::max;
 }
 
+void YCbCrU8ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
+{
+    //TODO: Change this to LCH proper//
+    *luma = channelValues[0];
+    *sat = channelValues[1];
+    *hue = channelValues[2];
+}
+
+QVector <double> YCbCrU8ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> channelValues(4);
+    channelValues[0]=*luma;
+    channelValues[1]=*sat;
+    channelValues[2]=*hue;
+    channelValues[3]=1.0;
+    return channelValues;
+}

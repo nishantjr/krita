@@ -75,4 +75,14 @@ void CmykU8ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) const
     p->alpha = KoColorSpaceMathsTraits<quint8>::max;
 }
 
+void CmykU8ColorSpace::toHSY(QVector <double> , qreal *, qreal *, qreal *) const
+{
+    
+}
 
+QVector <double> CmykU8ColorSpace::fromHSY(qreal *, qreal *, qreal *) const
+{
+    QVector <double> dummy(5);
+    dummy.fill(1.0);
+    return dummy;
+}

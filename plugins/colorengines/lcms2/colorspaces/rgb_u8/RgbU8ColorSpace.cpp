@@ -26,6 +26,7 @@
 
 #include <KoIntegerMaths.h>
 #include <KoColorSpaceRegistry.h>
+#include <KoColorConversions.h>
 #include "compositeops/KoCompositeOps.h"
 #include "compositeops/RgbCompositeOps.h"
 
@@ -112,4 +113,50 @@ quint8 RgbU8ColorSpace::intensity8(const quint8 * src) const
 {
     const KoBgrU8Traits::Pixel* p = reinterpret_cast<const KoBgrU8Traits::Pixel*>(src);
     return (quint8)(p->red * 0.30 + p->green * 0.59 + p->blue * 0.11);
+}
+
+void RgbU8ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> colorants(9);
+    if (profile()->hasColorants()){
+        colorants = profile()->getColorantsxyY();
+    } else {
+        //TODO: Change this to rec 709//
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    if (colorants[2]<0 || colorants[5]<0 || colorants[8]<0) {
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    
+    RGBToHSY(channelValues[0],channelValues[1],channelValues[2], hue, sat, luma, colorants[2], colorants[5], colorants[8]);
+}
+
+QVector <double> RgbU8ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> channelValues(4);
+    QVector <double> colorants(9);
+    if (profile()->hasColorants()){
+        colorants = profile()->getColorantsxyY();
+    } else {
+        //TODO: Change this to rec 709//
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    if (colorants[2]<0 || colorants[5]<0 || colorants[8]<0) {
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    HSYToRGB(*hue, *sat, *luma, &channelValues[0],&channelValues[1],&channelValues[2], colorants[2], colorants[5], colorants[8]);
+    channelValues[3]=1.0;
+    return channelValues;
 }

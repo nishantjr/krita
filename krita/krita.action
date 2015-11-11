@@ -1546,8 +1546,52 @@
     <whatsThis></whatsThis>
     <toolTip>Make brush color darker</toolTip>
     <iconText>Make brush color darker</iconText>
-    <shortcut>H</shortcut>
+    <shortcut>K</shortcut>
     <defaultShortcut>K</defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="make_brush_color_saturated">
+    <icon></icon>
+    <text>Make brush color more saturated</text>
+    <whatsThis></whatsThis>
+    <toolTip>Make brush color more saturated</toolTip>
+    <iconText>Make brush color more saturated</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="make_brush_color_desaturated">
+    <icon></icon>
+    <text>Make brush color more desaturated</text>
+    <whatsThis></whatsThis>
+    <toolTip>Make brush color more desaturated</toolTip>
+    <iconText>Make brush color more desaturated</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="shift_brush_color_clockwise">
+    <icon></icon>
+    <text>Shift brush color hue clockwise</text>
+    <whatsThis></whatsThis>
+    <toolTip>Shift brush color hue clockwise</toolTip>
+    <iconText>Shift brush color hue clockwise</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="shift_brush_color_counter_clockwise">
+    <icon></icon>
+    <text>Shift brush color hue counter-clockwise</text>
+    <whatsThis></whatsThis>
+    <toolTip>Shift brush color hue counter-clockwise</toolTip>
+    <iconText>Shift brush color hue counter-clockwise</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
     <isCheckable>false</isCheckable>
     <statusTip></statusTip>
   </Action>

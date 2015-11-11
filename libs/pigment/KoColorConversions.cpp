@@ -638,8 +638,8 @@ void HSYToRGB(const qreal h,const qreal s, const qreal y, qreal *red, qreal *gre
 	if (s>1.0){sat=1.0;}
 	else if (s<0.0){sat=0.0;}
 	else {sat=s;}
-	if (y>1.0){luma=1.0;}
-	else if (y<0.0){luma=0.0;}
+	//if (y>1.0){luma=1.0;}
+	if (y<0.0){luma=0.0;}
 	else {luma=y;}
 	
 	qreal segment = 0.166667;//1/6;
@@ -829,7 +829,7 @@ void RGBToHSY(const qreal r,const qreal g,const qreal b, qreal *h, qreal *s, qre
         }
 
 	if (sat>1.0){sat=1.0;}
-	if (luma>1.0){luma=1.0;}
+	//if (luma>1.0){luma=1.0;}
 	if (sat<0.0){sat=0.0;}
 	if (luma<0.0){luma=0.0;}
 

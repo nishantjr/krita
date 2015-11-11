@@ -476,6 +476,17 @@ public:
      */
     virtual quint8 intensity8(const quint8 * src) const = 0;
 
+    /*
+     *increase luminosity by step
+     */
+    virtual void increaseLuminosity(quint8 * pixel, qreal step) const;
+    virtual void decreaseLuminosity(quint8 * pixel, qreal step) const;
+    virtual void increaseSaturation(quint8 * pixel, qreal step) const;
+    virtual void decreaseSaturation(quint8 * pixel, qreal step) const;
+    virtual void increaseHue(quint8 * pixel, qreal step) const;
+    virtual void decreaseHue(quint8 * pixel, qreal step) const;
+    virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const = 0;
+    virtual QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const = 0;
     /**
      * Create a mathematical toolbox compatible with this colorspace
      */

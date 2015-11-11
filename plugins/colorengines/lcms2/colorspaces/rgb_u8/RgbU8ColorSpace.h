@@ -51,7 +51,9 @@ public:
     virtual void colorFromXML(quint8* pixel, const QDomElement& elt) const;
 
     virtual quint8 intensity8(const quint8 * src) const;
-
+    
+    virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const;
+    virtual QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const;
     static QString colorSpaceId()
     {
         return QString("RGBA");

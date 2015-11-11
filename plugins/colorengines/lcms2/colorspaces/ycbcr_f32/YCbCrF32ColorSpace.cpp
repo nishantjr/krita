@@ -77,3 +77,20 @@ void YCbCrF32ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) con
     p->alpha = 1.0;
 }
 
+void YCbCrF32ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
+{
+    //TODO: Change this to LCH proper//
+    *luma = channelValues[0];
+    *sat = channelValues[1];
+    *hue = channelValues[2];
+}
+
+QVector <double> YCbCrF32ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> channelValues(4);
+    channelValues[0]=*luma;
+    channelValues[1]=*sat;
+    channelValues[2]=*hue;
+    channelValues[3]=1.0;
+    return channelValues;
+}

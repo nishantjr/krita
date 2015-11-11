@@ -76,3 +76,48 @@ void RgbU16ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) const
     p->alpha = KoColorSpaceMathsTraits<quint16>::max;
 }
 
+void RgbU16ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> colorants(9);
+    if (profile()->hasColorants()){
+        colorants = profile()->getColorantsxyY();
+    } else {
+        //TODO: Change this to rec 709//
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    if (colorants[2]<0 || colorants[5]<0 || colorants[8]<0) {
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    
+    RGBToHSY(channelValues[0],channelValues[1],channelValues[2], hue, sat, luma, colorants[2], colorants[5], colorants[8]);
+}
+
+QVector <double> RgbU16ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
+{
+    QVector <double> channelValues(4);
+    QVector <double> colorants(9);
+    if (profile()->hasColorants()){
+        colorants = profile()->getColorantsxyY();
+    } else {
+        //TODO: Change this to rec 709//
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    if (colorants[2]<0 || colorants[5]<0 || colorants[8]<0) {
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    HSYToRGB(*hue, *sat, *luma, &channelValues[0],&channelValues[1],&channelValues[2], colorants[2], colorants[5], colorants[8]);
+    channelValues[3]=1.0;
+    return channelValues;
+}

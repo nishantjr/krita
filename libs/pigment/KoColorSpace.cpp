@@ -336,6 +336,115 @@ KoColorTransformation* KoColorSpace::createColorTransformation(const QString & i
     }
 }
 
+void KoColorSpace::increaseLuminosity(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal hue, sat, luma = 0.0;
+    toHSY(channelValues, &hue, &sat, &luma);
+    luma += step;
+    channelValues = fromHSY(&hue, &sat, &luma);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::decreaseLuminosity(quint8 * pixel, qreal step) const {
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal hue, sat, luma = 0.0;
+    toHSY(channelValues, &hue, &sat, &luma);
+    luma -= step;
+    channelValues = fromHSY(&hue, &sat, &luma);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::increaseSaturation(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal hue, sat, luma = 0.0;
+    toHSY(channelValues, &hue, &sat, &luma);
+    sat += step;
+    channelValues = fromHSY(&hue, &sat, &luma);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::decreaseSaturation(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal hue, sat, luma = 0.0;
+    toHSY(channelValues, &hue, &sat, &luma);
+    sat -= step;
+    channelValues = fromHSY(&hue, &sat, &luma);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::increaseHue(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal hue, sat, luma = 0.0;
+    toHSY(channelValues, &hue, &sat, &luma);
+    hue += step;
+    channelValues = fromHSY(&hue, &sat, &luma);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::decreaseHue(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal hue, sat, luma = 0.0;
+    toHSY(channelValues, &hue, &sat, &luma);
+    hue -= step;
+    if (hue<0.0){hue=1.0-hue;}
+    channelValues = fromHSY(&hue, &sat, &luma);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
 QImage KoColorSpace::convertToQImage(const quint8 *data, qint32 width, qint32 height,
                                      const KoColorProfile *dstProfile,
                                      KoColorConversionTransformation::Intent renderingIntent,
