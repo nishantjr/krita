@@ -24,6 +24,7 @@
 #include <klocalizedstring.h>
 
 #include "compositeops/KoCompositeOps.h"
+#include "KoColorConversions.h"
 
 XyzF16ColorSpace::XyzF16ColorSpace(const QString &name, KoColorProfile *p) :
     LcmsColorSpace<KoXyzF16Traits>(colorSpaceId(), name, TYPE_XYZA_HALF_FLT, cmsSigXYZData, p)
@@ -75,18 +76,30 @@ void XyzF16ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) const
 
 void XyzF16ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
 {
-    //TODO: Change this to LCH proper//
-    *luma = channelValues[2];
-    *sat = channelValues[0];
-    *hue = channelValues[1];
+    qreal xyx, xyy, xyY = 0.0;
+    XYZToxyY(channelValues[0],channelValues[1],channelValues[2], &xyx, &xyy, &xyY);
+    LabToLCH(xyY,xyx,xyY, hue, sat, luma);
 }
 
 QVector <double> XyzF16ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
 {
     QVector <double> channelValues(4);
-    channelValues[0]=*luma;
-    channelValues[1]=*sat;
-    channelValues[2]=*hue;
+    qreal xyx, xyy, xyY = 0.0;
+    LCHToLab(*luma, *sat, *hue, &xyY,&xyx,&xyy);
+    xyYToXYZ(xyx, xyy, xyY, &channelValues[0],&channelValues[1],&channelValues[2]);
+    channelValues[3]=1.0;
+    return channelValues;
+}
+
+void XyzF16ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const
+{
+    XYZToxyY(channelValues[0],channelValues[1],channelValues[2], cb, cr, y);
+}
+
+QVector <double> XyzF16ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) const
+{
+    QVector <double> channelValues(4);
+    xyYToXYZ(*cb, *cr, *y, &channelValues[0],&channelValues[1],&channelValues[2]);
     channelValues[3]=1.0;
     return channelValues;
 }

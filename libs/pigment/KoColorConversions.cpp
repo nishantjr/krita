@@ -847,174 +847,213 @@ void HCIToRGB(const qreal h, const qreal c, const qreal i, qreal *red, qreal *gr
 {
 //This function may not be correct, but it's based on the HCY function on the basis of seeing HCI as similar
 //to the weighted HCY, but assuming that the weights are the same(one-third).
-	qreal hue=0.0;
-	qreal chroma=0.0;
-	qreal intensity=0.0;	
-	if (i>1.0){intensity = 1.0;} else if(i<0.0){intensity = 0.0;} else{intensity = i;}
-	if (h>1.0 || h<0.0){hue=fmod(h, 1.0);} else {hue=h;}
-	if (c>1.0){chroma = 1.0;} else if(c<0.0){chroma = 0.0;} else{chroma = c;}
-	const qreal onethird = 1.0/3.0;
-	qreal r=0.0;
-	qreal g=0.0;
-	qreal b=0.0;
+    qreal hue=0.0;
+    qreal chroma=0.0;
+    qreal intensity=0.0;	
+    if (i>1.0){intensity = 1.0;} else if(i<0.0){intensity = 0.0;} else{intensity = i;}
+    if (h>1.0 || h<0.0){hue=fmod(h, 1.0);} else {hue=h;}
+    if (c>1.0){chroma = 1.0;} else if(c<0.0){chroma = 0.0;} else{chroma = c;}
+    const qreal onethird = 1.0/3.0;
+    qreal r=0.0;
+    qreal g=0.0;
+    qreal b=0.0;
 	
-	int fract = static_cast<int>(hue*6.0);
-	qreal x = (1-fabs(fmod(fract,2)-1) )*chroma;
-	switch (fract) {
-	case 0:r = chroma; g=x; b=0;break;
-	case 1:r = x; g=chroma; b=0;break;
-	case 2:r = 0; g=chroma; b=x;break;
-	case 3:r = 0; g=x; b=chroma;break;
-	case 4:r = x; g=0; b=chroma;break;
-	case 5:r = chroma; g=0; b=x;break;
-	}
-	qreal m = intensity-( onethird*(r+g+b) );
-	r += m; g += m; b += m;
+    int fract = static_cast<int>(hue*6.0);
+    qreal x = (1-fabs(fmod(fract,2)-1) )*chroma;
+    switch (fract) {
+        case 0:r = chroma; g=x; b=0;break;
+        case 1:r = x; g=chroma; b=0;break;
+        case 2:r = 0; g=chroma; b=x;break;
+        case 3:r = 0; g=x; b=chroma;break;
+        case 4:r = x; g=0; b=chroma;break;
+        case 5:r = chroma; g=0; b=x;break;
+    }
+    qreal m = intensity-( onethird*(r+g+b) );
+    r += m; g += m; b += m;
 
-	if (r>1.0){r=1.0;}
-	if (g>1.0){g=1.0;}
-	if (b>1.0){b=1.0;}
-	if (r<0.0){r=0.0;}
-	if (g<0.0){g=0.0;}
-	if (b<0.0){b=0.0;}
+    qBound(0.0,r,1.0);
+    qBound(0.0,g,1.0);
+    qBound(0.0,b,1.0);
 
-	*red=r;
-	*green=g;
-	*blue=b;
+    *red=r;
+    *green=g;
+    *blue=b;
 }
 
 void RGBToHCI(const qreal r,const qreal g,const qreal b, qreal *h, qreal *c, qreal *i)
 {
-	qreal minval = qMin(r, qMin(g, b));
-	qreal maxval = qMax(r, qMax(g, b));
-	qreal hue = 0.0;
-	qreal sat = 0.0;
-	qreal intensity = 0.0;
-	intensity=(r+g+b)/3.0;
-	qreal chroma = maxval-minval;	
-		if(chroma==0)
-        {
-            hue = 0.0;
-            sat = 0.0;
-        }
-        else
-        {
+    qreal minval = qMin(r, qMin(g, b));
+    qreal maxval = qMax(r, qMax(g, b));
+    qreal hue = 0.0;
+    qreal sat = 0.0;
+    qreal intensity = 0.0;
+    intensity=(r+g+b)/3.0;
+    qreal chroma = maxval-minval;	
+    if(chroma==0) {
+        hue = 0.0;
+        sat = 0.0;
+    } else {
         //the following finds the hue
 
-        if(maxval==r)
-            {
-                hue = fmod(((g-b)/chroma), 6.0);
-            }
-            else if(maxval==g)
-            {
-                hue = (b-r)/chroma + 2.0;
-            }
-            else if(maxval==b)
-            {
-                hue = (r-g)/chroma + 4.0;
-            }
-            hue /=6.0;//this makes sure that hue is in the 0-1.0 range.
-			sat= 1-(minval/intensity);
-		}
-	if (hue>1.0){hue=1.0;}
-	if (hue<0.0){hue=0.0;}
-	if (sat>1.0){sat=1.0;}
-	if (sat<0.0){sat=0.0;}
-	if (intensity>1.0){intensity=1.0;}
-	if (intensity<0.0){intensity=0.0;}
+        if(maxval==r) {
+            hue = fmod(((g-b)/chroma), 6.0);
+        } else if(maxval==g) {
+            hue = (b-r)/chroma + 2.0;
+        } else if(maxval==b) {
+            hue = (r-g)/chroma + 4.0;
+        }
+        hue /=6.0;//this makes sure that hue is in the 0-1.0 range.
+        sat= 1-(minval/intensity);
+    }
+    qBound(0.0,hue,1.0);
+    qBound(0.0,sat,1.0);
+    qBound(0.0,intensity,1.0);
 
-	*h=hue;
-	*c=sat;
-	*i=intensity;
+    *h=hue;
+    *c=sat;
+    *i=intensity;
 
 }
 void HCYToRGB(const qreal h, const qreal c, const qreal y, qreal *red, qreal *green, qreal *blue, qreal R, qreal G, qreal B)
 {
-	qreal hue=0.0;
-	qreal chroma=0.0;
-	qreal luma=0.0;
-	if (y>1.0){luma = 1.0;} else if(y<0.0){luma = 0.0;} else{luma = y;}
-	if (h>1.0 || h<0.0){hue=(fmod((h*2.0), 2.0))/2.0;} else {hue=h;}
-	if (c>1.0){chroma = 1.0;} else if(c<0.0){chroma = 0.0;} else{chroma = c;}
-	//const qreal R=0.299;
-	//const qreal G=0.587;
-	//const qreal B=0.114;
-	qreal r=0.0;
-	qreal g=0.0;
-	qreal b=0.0;
-	
-	int fract =static_cast<int>(hue*6.0); 
-	qreal x = (1-fabs(fmod(fract,2)-1) )*chroma;
-	switch (fract) {
-	case 0:r = chroma; g=x; b=0;break;
-	case 1:r = x; g=chroma; b=0;break;
-	case 2:r = 0; g=chroma; b=x;break;
-	case 3:r = 0; g=x; b=chroma;break;
-	case 4:r = x; g=0; b=chroma;break;
-	case 5:r = chroma; g=0; b=x;break;
-	}
-	qreal m = luma-( (R*r)+(B*b)+(G*g) );
-	r += m; g += m; b += m;
+    qreal hue=0.0;
+    qreal chroma=c;
+    qreal luma=y;
+    if (h>1.0 || h<0.0){hue=(fmod((h*2.0), 2.0))/2.0;} else {hue=h;}
+    qBound(0.0,chroma,1.0);
+    qBound(0.0,luma,1.0);
+    //const qreal R=0.299;
+    //const qreal G=0.587;
+    //const qreal B=0.114;
+    qreal r=0.0;
+    qreal g=0.0;
+    qreal b=0.0;
 
-	if (r>1.0){r=1.0;}
-	if (g>1.0){g=1.0;}
-	if (b>1.0){b=1.0;}
-	if (r<0.0){r=0.0;}
-	if (g<0.0){g=0.0;}
-	if (b<0.0){b=0.0;}
+    int fract =static_cast<int>(hue*6.0); 
+    qreal x = (1-fabs(fmod(fract,2)-1) )*chroma;
+    switch (fract) {
+        case 0:r = chroma; g=x; b=0;break;
+        case 1:r = x; g=chroma; b=0;break;
+        case 2:r = 0; g=chroma; b=x;break;
+        case 3:r = 0; g=x; b=chroma;break;
+        case 4:r = x; g=0; b=chroma;break;
+        case 5:r = chroma; g=0; b=x;break;
+    }
+    qreal m = luma-( (R*r)+(B*b)+(G*g) );
+    r += m; g += m; b += m;
 
-	*red=r;
-	*green=g;
-	*blue=b;
+    qBound(0.0,r,1.0);
+    qBound(0.0,g,1.0);
+    qBound(0.0,b,1.0);
+
+    *red=r;
+    *green=g;
+    *blue=b;
 }
 
 void RGBToHCY(const qreal r,const qreal g,const qreal b, qreal *h, qreal *c, qreal *y, qreal R, qreal G, qreal B)
 {
-	qreal minval = qMin(r, qMin(g, b));
-	qreal maxval = qMax(r, qMax(g, b));
-	qreal hue = 0.0;
-	qreal chroma = 0.0;
-	qreal luma = 0.0;
-	//weights for rgb, these are the same weights used in color space maths and the desaturate.
-	//qreal R=0.299;
-	//qreal G=0.587;
-	//qreal B=0.114;
-	luma=(R*r+G*g+B*b);
-	chroma = maxval-minval;
-	
-		if(chroma==0)
-        {
-            hue = 0.0;
-        }
-        else
-        {
+    qreal minval = qMin(r, qMin(g, b));
+    qreal maxval = qMax(r, qMax(g, b));
+    qreal hue = 0.0;
+    qreal chroma = 0.0;
+    qreal luma = 0.0;
+    //weights for rgb, these are the same weights used in color space maths and the desaturate.
+    //qreal R=0.299;
+    //qreal G=0.587;
+    //qreal B=0.114;
+    luma=(R*r+G*g+B*b);
+        chroma = maxval-minval;
+
+    if(chroma==0) {
+        hue = 0.0;
+    }
+    else {
         //the following finds the hue
 
-        if(maxval==r)
-            {
-                hue = fmod(((g-b)/chroma), 6.0);
-            }
-            else if(maxval==g)
-            {
-                hue = (b-r)/chroma + 2.0;
-            }
-            else if(maxval==b)
-            {
-                hue = (r-g)/chroma + 4.0;
-            }
-            hue /=6.0;//this makes sure that hue is in the 0-1.0 range.
-				
-		}
-	if (hue>1.0){hue=1.0;}
-	if (hue<0.0){hue=0.0;}
-	if (chroma>1.0){chroma=1.0;}
-	if (luma>1.0){luma=1.0;}
-	if (chroma<0.0){chroma=0.0;}
-	if (luma<0.0){luma=0.0;}
+        if(maxval==r) {
+            hue = fmod(((g-b)/chroma), 6.0);
+        }
+        else if(maxval==g) {
+            hue = (b-r)/chroma + 2.0;
+        }
+        else if(maxval==b) {
+            hue = (r-g)/chroma + 4.0;
+        }
+        hue /=6.0;//this makes sure that hue is in the 0-1.0 range.
+    }
+    if (hue>1.0){hue=1.0;}
+    if (hue<0.0){hue=0.0;}
+    if (chroma>1.0){chroma=1.0;}
+    if (luma>1.0){luma=1.0;}
+    if (chroma<0.0){chroma=0.0;}
+    if (luma<0.0){luma=0.0;}
 
-	*h=hue;
-	*c=chroma;
-	*y=luma;	
+    *h=hue;
+    *c=chroma;
+    *y=luma;	
 
 }
+void RGBToYCbCr(const qreal r,const qreal g,const qreal b, qreal *y, qreal *cb, qreal *cr, qreal R, qreal G, qreal B)
+{
+    qreal luma = R*r+G*g+B*b;
+    //qreal chromaBlue = (0.5*(b - luma /1.0-B))+ 0.5;
+    //qreal chromaRed =  (0.5*(r - luma /1.0-R))+ 0.5;
+    //qreal chromaBlue = (r*(-R   )-g*G+b*(1.0-B)) + 0.5;
+    //qreal chromaRed  = (r*(1.0-R)-g*G-b*     B ) + 0.5;
+    qreal chromaBlue = b- luma;
+    qreal chromaRed  = r- luma;
+    *y = qBound(0.0,luma,1.0);
+    *cb = qBound(0.0,chromaBlue+ 0.5,1.0);
+    *cr = qBound(0.0,chromaRed + 0.5,1.0);
+}
+void YCbCrToRGB(const qreal y, const qreal cb, const qreal cr, qreal *r, qreal *g, qreal *b, qreal R, qreal G, qreal B)
+{
+    qreal chromaBlue = qBound(0.0,cb,1.0)- 0.5;
+    qreal chromaRed = qBound(0.0,cr,1.0)- 0.5;
+    //qreal red   = (2 * (1.0-R)) * (chromaRed - 0.5) + y;
+    //qreal green = y- ((2 * (1.0-R) * (R/G)) * (chromaRed - 0.5)) - ((2 * (1.0-B) * (B/G)) * (chromaBlue- 0.5));
+    //qreal blue  = (2 * (1.0-B)) * (chromaBlue- 0.5) + y;
+    qreal red   = y+chromaRed;
+    qreal green = y-((R/G)*(chromaBlue))-((B/G)*(chromaRed));
+    qreal blue  = y+chromaBlue;
+    
+    *r=qBound(0.0,red  ,1.0);
+    *g=qBound(0.0,green,1.0);
+    *b=qBound(0.0,blue ,1.0);
+}
 
+void LabToLCH(const qreal l, const qreal a, const qreal b, qreal *L, qreal *C, qreal *H)
+{
+    *L=qBound(0.0,l,1.0);
+    *C=sqrt(pow( qBound(0.0,a,1.0)- 0.5 , 2.0) + pow(qBound(0.0,b,1.0) - 0.5 , 2.0));
+    *H=atan((qBound(0.0,a,1.0) - 0.5)/(qBound(0.0,b,1.0) - 0.5));
+    if (*H<0.0) {*H+=360;}
+    *H/=360.0;
+}
+
+void LCHToLab(const qreal L, const qreal C, const qreal H, qreal *l, qreal *a, qreal *b)
+{
+    *l=qBound(0.0,L,1.0);
+    *a=(qBound(0.0,C,1.0)*cos(qBound(0.0,H,1.0)*360.0))+ 0.5;
+    *b=(qBound(0.0,C,1.0)*sin(qBound(0.0,H,1.0)*360.0))+ 0.5;
+}
+
+void XYZToxyY(const qreal X, const qreal Y, const qreal Z, qreal *x, qreal *y, qreal *yY)
+{
+    qBound(0.0,X,1.0);
+    qBound(0.0,Y,1.0);
+    qBound(0.0,Z,1.0);
+    *x=X/(X+Y+Z);
+    *y=Y/(X+Y+Z);
+    *yY=Y;
+}  
+void xyYToXYZ(const qreal x, const qreal y, const qreal yY, qreal *X, qreal *Y, qreal *Z)
+{
+    qBound(0.0,x,1.0);
+    qBound(0.0,y,1.0);
+    qBound(0.0,yY,1.0);
+    *X=(x*yY)/y;
+    *Z=((1.0-x-y)/yY)/y;
+    *Y=yY;
+}

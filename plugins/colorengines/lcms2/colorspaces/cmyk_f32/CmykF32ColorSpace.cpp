@@ -90,3 +90,15 @@ QVector <double> CmykF32ColorSpace::fromHSY(qreal *, qreal *, qreal *) const
     dummy.fill(1.0);
     return dummy;
 }
+
+void CmykF32ColorSpace::toYCbCr(QVector <double> , qreal *, qreal *, qreal *) const
+{
+    
+}
+
+QVector <double> CmykF32ColorSpace::fromYCbCr(qreal *, qreal *, qreal *) const
+{
+    QVector <double> dummy(5);
+    dummy.fill(1.0);
+    return dummy;
+}

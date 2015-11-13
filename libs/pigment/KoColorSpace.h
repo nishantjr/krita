@@ -485,8 +485,14 @@ public:
     virtual void decreaseSaturation(quint8 * pixel, qreal step) const;
     virtual void increaseHue(quint8 * pixel, qreal step) const;
     virtual void decreaseHue(quint8 * pixel, qreal step) const;
+    virtual void increaseRed(quint8 * pixel, qreal step) const;
+    virtual void increaseGreen(quint8 * pixel, qreal step) const;
+    virtual void increaseBlue(quint8 * pixel, qreal step) const;
+    virtual void increaseYellow(quint8 * pixel, qreal step) const;
     virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const = 0;
     virtual QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const = 0;
+    virtual void toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const = 0;
+    virtual QVector <double> fromYCbCr(qreal *y, qreal *cb, qreal *cr) const = 0;
     /**
      * Create a mathematical toolbox compatible with this colorspace
      */

@@ -121,3 +121,49 @@ QVector <double> RgbU16ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) 
     channelValues[3]=1.0;
     return channelValues;
 }
+
+void RgbU16ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const
+{
+    QVector <double> colorants(9);
+    if (profile()->hasColorants()){
+        colorants = profile()->getColorantsxyY();
+    } else {
+        //TODO: Change this to rec 709//
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    if (colorants[2]<0 || colorants[5]<0 || colorants[8]<0) {
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    
+    RGBToYCbCr(channelValues[0],channelValues[1],channelValues[2], y, cb, cr, colorants[2], colorants[5], colorants[8]);
+}
+
+QVector <double> RgbU16ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) const
+{
+    QVector <double> channelValues(4);
+    QVector <double> colorants(9);
+    if (profile()->hasColorants()){
+        colorants = profile()->getColorantsxyY();
+    } else {
+        //TODO: Change this to rec 709//
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    if (colorants[2]<0 || colorants[5]<0 || colorants[8]<0) {
+        colorants.fill(1.0);
+        colorants[2] = 0.30;
+        colorants[5] = 0.59;
+        colorants[8] = 0.11;
+    }
+    YCbCrToRGB(*y, *cb, *cr, &channelValues[0],&channelValues[1],&channelValues[2], colorants[2], colorants[5], colorants[8]);
+    channelValues[3]=1.0;
+    return channelValues;
+}

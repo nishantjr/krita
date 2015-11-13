@@ -1595,6 +1595,50 @@
     <isCheckable>false</isCheckable>
     <statusTip></statusTip>
   </Action>
+  <Action name="make_brush_color_redder">
+    <icon></icon>
+    <text>Make brush color more red</text>
+    <whatsThis></whatsThis>
+    <toolTip>Make brush color more red</toolTip>
+    <iconText>Make brush color more red</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="make_brush_color_greener">
+    <icon></icon>
+    <text>Make brush color more green</text>
+    <whatsThis></whatsThis>
+    <toolTip>Make brush color more green</toolTip>
+    <iconText>Make brush color more green</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="make_brush_color_bluer">
+    <icon></icon>
+    <text>Make brush color more blue</text>
+    <whatsThis></whatsThis>
+    <toolTip>Make brush color more blue</toolTip>
+    <iconText>Make brush color more blue</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
+  <Action name="make_brush_color_yellower">
+    <icon></icon>
+    <text>Make brush color more yellow</text>
+    <whatsThis></whatsThis>
+    <toolTip>Make brush color more yellow</toolTip>
+    <iconText>Make brush color more yellow</iconText>
+    <shortcut></shortcut>
+    <defaultShortcut></defaultShortcut>
+    <isCheckable>false</isCheckable>
+    <statusTip></statusTip>
+  </Action>
   <Action name="increase_opacity">
     <icon></icon>
     <text>Increase opacity</text>

@@ -77,3 +77,16 @@ QVector <double> GrayF32ColorSpace::fromHSY(qreal *, qreal *, qreal *luma) const
     channelValues[1]=1.0;
     return channelValues;
 }
+
+void GrayF32ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *, qreal *) const
+{
+    *y = channelValues[0];
+}
+
+QVector <double> GrayF32ColorSpace::fromYCbCr(qreal *y, qreal *, qreal *) const
+{
+    QVector <double> channelValues(2);
+    channelValues.fill(*y);
+    channelValues[1]=1.0;
+    return channelValues;
+}

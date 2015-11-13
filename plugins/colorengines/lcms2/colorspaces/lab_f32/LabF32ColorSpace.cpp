@@ -24,6 +24,7 @@
 #include <klocalizedstring.h>
 
 #include "../compositeops/KoCompositeOps.h"
+#include "KoColorConversions.h"
 
 LabF32ColorSpace::LabF32ColorSpace (const QString &name, KoColorProfile *p)
     : LcmsColorSpace<KoLabF32Traits>(colorSpaceId(), name, TYPE_LabA_FLT, cmsSigLabData, p)
@@ -79,18 +80,29 @@ void LabF32ColorSpace::colorFromXML(quint8* pixel, const QDomElement& elt) const
 
 void LabF32ColorSpace::toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const
 {
-    //TODO: Change this to LCH proper//
-    *luma = channelValues[0];
-    *sat = channelValues[1];
-    *hue = channelValues[2];
+    LabToLCH(channelValues[0],channelValues[1],channelValues[2], luma, sat, hue);
 }
 
 QVector <double> LabF32ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) const
 {
     QVector <double> channelValues(4);
-    channelValues[0]=*luma;
-    channelValues[1]=*sat;
-    channelValues[2]=*hue;
+    LCHToLab(*luma, *sat, *hue, &channelValues[0],&channelValues[1],&channelValues[2]);
+    channelValues[3]=1.0;
+    return channelValues;
+}
+void LabF32ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const
+{
+    *y =channelValues[0];
+    *cr=channelValues[1];
+    *cb=channelValues[2];
+}
+
+QVector <double> LabF32ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) const
+{
+    QVector <double> channelValues(4);
+    channelValues[0]=*y;
+    channelValues[1]=*cr;
+    channelValues[2]=*cb;
     channelValues[3]=1.0;
     return channelValues;
 }

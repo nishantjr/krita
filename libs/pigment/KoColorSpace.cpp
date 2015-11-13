@@ -468,6 +468,79 @@ void KoColorSpace::decreaseHue(quint8 * pixel, qreal step) const{
     }
     fromNormalisedChannelsValue(pixel, channelValuesF);
 }
+
+void KoColorSpace::increaseRed(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal y, cr, cb = 0.0;
+    toYCbCr(channelValues, &y, &cb, &cr);
+    cr += step;
+    channelValues = fromYCbCr(&y, &cb, &cr);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::increaseGreen(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal y, cr, cb = 0.0;
+    toYCbCr(channelValues, &y, &cb, &cr);
+    cr -= step;
+    channelValues = fromYCbCr(&y, &cb, &cr);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::increaseBlue(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal y, cr, cb = 0.0;
+    toYCbCr(channelValues, &y, &cb, &cr);
+    cb -= step;
+    channelValues = fromYCbCr(&y, &cb, &cr);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
+void KoColorSpace::increaseYellow(quint8 * pixel, qreal step) const{
+    QVector <double> channelValues(colorChannelCount());
+    QVector <float> channelValuesF(colorChannelCount());
+    normalisedChannelsValue(pixel, channelValuesF);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValues[i]=channelValuesF[i];
+    }
+    profile()->LinearizeFloatValue(channelValues);
+    qreal y, cr, cb = 0.0;
+    toYCbCr(channelValues, &y, &cb, &cr);
+    cb += step;
+    channelValues = fromYCbCr(&y, &cb, &cr);
+    profile()->DelinearizeFloatValue(channelValues);
+    for (int i=0;i<abs(colorChannelCount());i++){
+        channelValuesF[i]=channelValues[i];
+    }
+    fromNormalisedChannelsValue(pixel, channelValuesF);
+}
 QImage KoColorSpace::convertToQImage(const quint8 *data, qint32 width, qint32 height,
                                      const KoColorProfile *dstProfile,
                                      KoColorConversionTransformation::Intent renderingIntent,

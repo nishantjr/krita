@@ -75,7 +75,23 @@ void KisCanvasControlsManager::setup(KisActionManager *actionManager)
     KisAction *hueCounterClockwise = new KisAction(i18n("Shift brush color hue counter-clockwise"));
     actionManager->addAction("shift_brush_color_counter_clockwise", hueCounterClockwise);
     connect(hueCounterClockwise, SIGNAL(triggered()), SLOT(shiftHueCounterClockWise()));
+    
+    KisAction *moreRed = new KisAction(i18n("Make brush color redder"));
+    actionManager->addAction("make_brush_color_redder", moreRed);
+    connect(moreRed, SIGNAL(triggered()), SLOT(makeColorRed()));
+    
+    KisAction *moreGreen = new KisAction(i18n("Make brush color greener"));
+    actionManager->addAction("make_brush_color_greener", moreGreen);
+    connect(moreGreen, SIGNAL(triggered()), SLOT(makeColorGreen()));
+    
+    KisAction *moreBlue = new KisAction(i18n("Make brush color bluer"));
+    actionManager->addAction("make_brush_color_bluer", moreBlue);
+    connect(moreBlue, SIGNAL(triggered()), SLOT(makeColorBlue()));
 
+    KisAction *moreYellow = new KisAction(i18n("Make brush color Yellower"));
+    actionManager->addAction("make_brush_color_yellower", moreYellow);
+    connect(moreYellow, SIGNAL(triggered()), SLOT(makeColorYellow()));
+    
     KisAction *increaseOpacity = new KisAction(i18n("Increase opacity"));
     increaseOpacity->setDefaultShortcut(Qt::Key_O);
     actionManager->addAction("increase_opacity", increaseOpacity);
@@ -163,6 +179,42 @@ void KisCanvasControlsManager::transformHue(int step)
     }
     m_view->resourceProvider()->resourceManager()->setResource(KoCanvasResourceManager::ForegroundColor, color);
 }
+void KisCanvasControlsManager::transformRed(int step)
+{
+    if (!m_view) return;
+    if (!m_view->canvasBase()) return;
+    if (!m_view->resourceProvider()->resourceManager()) return;
+
+    KoColor color = m_view->resourceProvider()->resourceManager()->resource(KoCanvasResourceManager::ForegroundColor).value<KoColor>();
+    if (color.colorSpace()->colorModelId().id()=="CMYKA"){
+        QColor rgb = color.toQColor();
+        //rgb.setHsl(r,g,b);
+        color.fromQColor(rgb);
+    } else if (step<0){
+        color.colorSpace()->increaseGreen(color.data(), 0.01);
+    } else {
+        color.colorSpace()->increaseRed(color.data(), 0.01);
+    }
+    m_view->resourceProvider()->resourceManager()->setResource(KoCanvasResourceManager::ForegroundColor, color);
+}
+void KisCanvasControlsManager::transformBlue(int step)
+{
+    if (!m_view) return;
+    if (!m_view->canvasBase()) return;
+    if (!m_view->resourceProvider()->resourceManager()) return;
+
+    KoColor color = m_view->resourceProvider()->resourceManager()->resource(KoCanvasResourceManager::ForegroundColor).value<KoColor>();
+    if (color.colorSpace()->colorModelId().id()=="CMYKA"){
+        QColor rgb = color.toQColor();
+        //rgb.setHsl(r,g,b);
+        color.fromQColor(rgb);
+    } else if (step<0){
+        color.colorSpace()->increaseYellow(color.data(), 0.01);
+    } else {
+        color.colorSpace()->increaseBlue(color.data(), 0.01);
+    }
+    m_view->resourceProvider()->resourceManager()->setResource(KoCanvasResourceManager::ForegroundColor, color);
+}
 
 
 void KisCanvasControlsManager::makeColorDarker()
@@ -193,7 +245,22 @@ void KisCanvasControlsManager::shiftHueCounterClockWise()
 {
     transformHue(-STEP);
 }
-
+void KisCanvasControlsManager::makeColorRed()
+{
+    transformRed(STEP);
+}
+void KisCanvasControlsManager::makeColorGreen()
+{
+    transformRed(-STEP);
+}
+void KisCanvasControlsManager::makeColorBlue()
+{
+    transformBlue(STEP);
+}
+void KisCanvasControlsManager::makeColorYellow()
+{
+    transformBlue(-STEP);
+}
 void KisCanvasControlsManager::stepAlpha(float step)
 {
     if (!m_view) return;

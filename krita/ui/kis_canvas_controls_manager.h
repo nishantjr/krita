@@ -47,6 +47,10 @@ private Q_SLOTS:
     void makeColorSaturated();
     void shiftHueClockWise();
     void shiftHueCounterClockWise();
+    void makeColorRed();
+    void makeColorGreen();
+    void makeColorBlue();
+    void makeColorYellow();
 
     void increaseOpacity();
     void decreaseOpacity();
@@ -54,6 +58,8 @@ private:
     void transformColor(int step);
     void transformSaturation(int step);
     void transformHue(int step);
+    void transformRed(int step);
+    void transformBlue(int step);
     void stepAlpha(float step);
 
 private:
