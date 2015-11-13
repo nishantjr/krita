@@ -583,48 +583,47 @@ void KisDisplayColorConverter::getHslF(const KoColor &srcColor, qreal *h, qreal 
 KoColor KisDisplayColorConverter::fromHsiF(qreal h, qreal s, qreal i)
 {
     // generate HSI from sRGB!
-	qreal r=0.0;
-	qreal g=0.0;
-	qreal b=0.0;
-	qreal a=1.0;
-	HSIToRGB(h, s, i, &r, &g, &b);
-	QColor qcolor;
-	qcolor.setRgbF(r, g, b, a);
+    qreal r=0.0;
+    qreal g=0.0;
+    qreal b=0.0;
+    qreal a=1.0;
+    HSIToRGB(h, s, i, &r, &g, &b);
+    QColor qcolor;
+    qcolor.setRgbF(r, g, b, a);
     return m_d->approximateFromQColor(qcolor);
 }
 
 void KisDisplayColorConverter::getHsiF(const KoColor &srcColor, qreal *h, qreal *s, qreal *i)
 {
     // we are going through sRGB here!
-	QColor color = m_d->approximateToQColor(srcColor);
-	qreal r=color.redF();
-	qreal g=color.greenF();
-	qreal b=color.blueF();
-	RGBToHSI(r, g, b, h, s, i);
+    QColor color = m_d->approximateToQColor(srcColor);
+    qreal r=color.redF();
+    qreal g=color.greenF();
+    qreal b=color.blueF();
+    RGBToHSI(r, g, b, h, s, i);
 }
 
 KoColor KisDisplayColorConverter::fromHsyF(qreal h, qreal s, qreal y, qreal R, qreal G, qreal B)
 {
     // generate HSL from sRGB!
-	QVector <double> channelValues(3);
-        HSYToRGB(h, s, y, &channelValues[0], &channelValues[1], &channelValues[2], R, G, B);
-        //KoColorSpaceRegistry::instance()->rgb8()->profile()->DelinearizeFloatValue(channelValues);
-        QColor qcolor;
-	qcolor.setRgbF(channelValues[0], channelValues[1], channelValues[2], 1.0);
+    QVector <double> channelValues(3);
+    HSYToRGB(h, s, y, &channelValues[0], &channelValues[1], &channelValues[2], R, G, B);
+    KoColorSpaceRegistry::instance()->rgb8()->profile()->DelinearizeFloatValueFast(channelValues);
+    QColor qcolor;
+    qcolor.setRgbF(channelValues[0], channelValues[1], channelValues[2], 1.0);
     return m_d->approximateFromQColor(qcolor);
 }
 
 void KisDisplayColorConverter::getHsyF(const KoColor &srcColor, qreal *h, qreal *s, qreal *y, qreal R, qreal G, qreal B)
 {
     // we are going through sRGB here!
-	QColor color = m_d->approximateToQColor(srcColor);
-        QVector <double> channelValues(3);
-        channelValues[0]=color.redF();
-	channelValues[1]=color.greenF();
-	channelValues[2]=color.blueF();
-        //this makes Krita so slow, it's hilarious.
-        //KoColorSpaceRegistry::instance()->rgb8()->profile()->LinearizeFloatValue(channelValues);
-        RGBToHSY(channelValues[0], channelValues[1], channelValues[2], h, s, y, R, G, B);
+    QColor color = m_d->approximateToQColor(srcColor);
+    QVector <double> channelValues(3);
+    channelValues[0]=color.redF();
+    channelValues[1]=color.greenF();
+    channelValues[2]=color.blueF();
+    KoColorSpaceRegistry::instance()->rgb8()->profile()->LinearizeFloatValueFast(channelValues);
+    RGBToHSY(channelValues[0], channelValues[1], channelValues[2], h, s, y, R, G, B);
 }
 
 #include "moc_kis_display_color_converter.cpp"

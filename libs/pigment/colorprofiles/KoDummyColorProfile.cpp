@@ -96,14 +96,20 @@ QVector <double> KoDummyColorProfile::getEstimatedTRC() const
     return Dummy;
 }
 
-void KoDummyColorProfile::LinearizeFloatValue(QVector <double> & Value) const
+void KoDummyColorProfile::LinearizeFloatValue(QVector <double> & ) const
 {
 }
 
-void KoDummyColorProfile::DelinearizeFloatValue(QVector <double> & Value) const
+void KoDummyColorProfile::DelinearizeFloatValue(QVector <double> & ) const
+{
+}
+void KoDummyColorProfile::LinearizeFloatValueFast(QVector <double> & ) const
 {
 }
 
+void KoDummyColorProfile::DelinearizeFloatValueFast(QVector <double> & ) const
+{
+}
 bool KoDummyColorProfile::operator==(const KoColorProfile& rhs) const
 {
     return dynamic_cast<const KoDummyColorProfile*>(&rhs);

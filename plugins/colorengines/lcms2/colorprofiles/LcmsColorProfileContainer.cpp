@@ -58,6 +58,10 @@ public:
     cmsToneCurve *greenTRC;
     cmsToneCurve *blueTRC;
     cmsToneCurve *grayTRC;
+    cmsToneCurve *redTRCReverse;
+    cmsToneCurve *greenTRCReverse;
+    cmsToneCurve *blueTRCReverse;
+    cmsToneCurve *grayTRCReverse;
 };
 
 LcmsColorProfileContainer::LcmsColorProfileContainer()
@@ -193,10 +197,14 @@ bool LcmsColorProfileContainer::init()
             d->redTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigRedTRCTag));
             d->greenTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigGreenTRCTag));
             d->blueTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigBlueTRCTag));
+            d->redTRCReverse = cmsReverseToneCurve(d->redTRC);
+            d->greenTRCReverse = cmsReverseToneCurve(d->greenTRC);
+            d->blueTRCReverse = cmsReverseToneCurve(d->blueTRC);
             d->hasTRC = true;
         
         } else if (cmsIsTag(d->profile, cmsSigGrayTRCTag)) {
             d->grayTRC = ((cmsToneCurve *)cmsReadTag (d->profile, cmsSigGrayTRCTag));
+            d->grayTRCReverse = cmsReverseToneCurve(d->grayTRC);
             d->hasTRC = true;
         } else {
             d->hasTRC = false;
@@ -407,26 +415,87 @@ void LcmsColorProfileContainer::DelinearizeFloatValue(QVector <double> & Value) 
         if (cmsIsToneCurveLinear(d->redTRC)) {
             TRCtriplet[0] = Value[0];
         } else {
-            TRCtriplet[0] = cmsEvalToneCurveFloat(cmsReverseToneCurve(d->redTRC), Value[0]);
+            TRCtriplet[0] = cmsEvalToneCurveFloat(d->redTRCReverse, Value[0]);
         }
         if (cmsIsToneCurveLinear(d->greenTRC)) {
             TRCtriplet[1] = Value[1];
         } else {
-            TRCtriplet[1] = cmsEvalToneCurveFloat(cmsReverseToneCurve(d->greenTRC), Value[1]);
+            TRCtriplet[1] = cmsEvalToneCurveFloat(d->greenTRCReverse, Value[1]);
         }
         if (cmsIsToneCurveLinear(d->blueTRC)) {
             TRCtriplet[2] = Value[2];
         } else {
-            TRCtriplet[2] = cmsEvalToneCurveFloat(cmsReverseToneCurve(d->blueTRC), Value[2]);
+            TRCtriplet[2] = cmsEvalToneCurveFloat(d->blueTRCReverse, Value[2]);
         }
             
     } else {
         if (cmsIsTag(d->profile, cmsSigGrayTRCTag)) {
-            TRCtriplet.fill(cmsEvalToneCurveFloat(cmsReverseToneCurve(d->grayTRC), Value[0]));
+            TRCtriplet.fill(cmsEvalToneCurveFloat(d->grayTRCReverse, Value[0]));
         }
     }
 
     Value = TRCtriplet;
+}
+
+void LcmsColorProfileContainer::LinearizeFloatValueFast(QVector <double> & Value) const
+{
+    //we can only reliably delinearise in the 0-1.0 range, outside of that leave the value alone.
+    QVector <quint16> TRCtriplet(3);
+    TRCtriplet[0] = Value[0]*65535;
+    TRCtriplet[1] = Value[1]*65535;
+    TRCtriplet[2] = Value[2]*65535;
+    
+
+    if (d->hasColorants) {
+        if (!cmsIsToneCurveLinear(d->redTRC) && Value[0]<1.0) {
+            TRCtriplet[0] = cmsEvalToneCurve16(d->redTRC, TRCtriplet[0]);
+            Value[0] = TRCtriplet[0]/65535.0;
+        }
+        if (!cmsIsToneCurveLinear(d->greenTRC) && Value[1]<1.0) {
+            TRCtriplet[1] = cmsEvalToneCurve16(d->greenTRC, TRCtriplet[1]);
+            Value[1] = TRCtriplet[1]/65535.0;
+        }
+        if (!cmsIsToneCurveLinear(d->blueTRC) && Value[2]<1.0) {
+            TRCtriplet[2] = cmsEvalToneCurve16(d->blueTRC, TRCtriplet[2]);
+            Value[2] = TRCtriplet[2]/65535.0;
+        }
+            
+    } else {
+        if (cmsIsTag(d->profile, cmsSigGrayTRCTag) && Value[0]<1.0) {
+            TRCtriplet[0] = (cmsEvalToneCurve16(d->grayTRC, Value[0]*65535));
+            Value.fill(TRCtriplet[0]/65535.0);
+        }
+    }
+}
+void LcmsColorProfileContainer::DelinearizeFloatValueFast(QVector <double> & Value) const
+{
+    //we can only reliably delinearise in the 0-1.0 range, outside of that leave the value alone.
+    QVector <quint16> TRCtriplet(3);
+    TRCtriplet[0] = Value[0]*65535;
+    TRCtriplet[1] = Value[1]*65535;
+    TRCtriplet[2] = Value[2]*65535;
+    
+
+    if (d->hasColorants) {
+        if (!cmsIsToneCurveLinear(d->redTRC) && Value[0]<1.0) {
+            TRCtriplet[0] = cmsEvalToneCurve16(d->redTRCReverse, TRCtriplet[0]);
+            Value[0] = TRCtriplet[0]/65535.0;
+        }
+        if (!cmsIsToneCurveLinear(d->greenTRC) && Value[1]<1.0) {
+            TRCtriplet[1] = cmsEvalToneCurve16(d->greenTRCReverse, TRCtriplet[1]);
+            Value[1] = TRCtriplet[1]/65535.0;
+        }
+        if (!cmsIsToneCurveLinear(d->blueTRC) && Value[2]<1.0) {
+            TRCtriplet[2] = cmsEvalToneCurve16(d->blueTRCReverse, TRCtriplet[2]);
+            Value[2] = TRCtriplet[2]/65535.0;
+        }
+            
+    } else {
+        if (cmsIsTag(d->profile, cmsSigGrayTRCTag) && Value[0]<1.0) {
+            TRCtriplet[0] = (cmsEvalToneCurve16(d->grayTRCReverse, Value[0]*65535));
+            Value.fill(TRCtriplet[0]/65535.0);
+        }
+    }
 }
 
 QString LcmsColorProfileContainer::name() const

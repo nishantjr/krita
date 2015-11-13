@@ -102,6 +102,8 @@ public:
     virtual QVector <double> getEstimatedTRC() const;
     virtual void LinearizeFloatValue(QVector <double> & Value) const;
     virtual void DelinearizeFloatValue(QVector <double> & Value) const;
+    virtual void LinearizeFloatValueFast(QVector <double> & Value) const;
+    virtual void DelinearizeFloatValueFast(QVector <double> & Value) const;
     virtual bool operator==(const KoColorProfile&) const;
     virtual QString type() const { return "icc"; }
 

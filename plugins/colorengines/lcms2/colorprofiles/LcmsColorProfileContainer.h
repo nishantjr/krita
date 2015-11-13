@@ -90,6 +90,8 @@ public:
     virtual QVector <double> getEstimatedTRC() const;
     virtual void LinearizeFloatValue(QVector <double> & Value) const;
     virtual void DelinearizeFloatValue(QVector <double> & Value) const;
+    virtual void LinearizeFloatValueFast(QVector <double> & Value) const;
+    virtual void DelinearizeFloatValueFast(QVector <double> & Value) const;
     virtual QString name() const;
     virtual QString info() const;
 

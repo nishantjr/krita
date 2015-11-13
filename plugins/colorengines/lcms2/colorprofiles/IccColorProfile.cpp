@@ -207,6 +207,16 @@ void IccColorProfile::DelinearizeFloatValue(QVector <double> & Value) const
     if (d->shared->lcmsProfile)
         d->shared->lcmsProfile->DelinearizeFloatValue(Value);
 }
+void IccColorProfile::LinearizeFloatValueFast(QVector <double> & Value) const
+{
+    if (d->shared->lcmsProfile)
+        d->shared->lcmsProfile->LinearizeFloatValueFast(Value);
+}
+void IccColorProfile::DelinearizeFloatValueFast(QVector <double> & Value) const
+{
+    if (d->shared->lcmsProfile)
+        d->shared->lcmsProfile->DelinearizeFloatValueFast(Value);
+}
 
 bool IccColorProfile::load()
 {
