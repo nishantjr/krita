@@ -276,7 +276,8 @@ KisMainWindow::KisMainWindow()
     KisConfig cfg;
 
     d->viewManager = new KisViewManager(this, actionCollection());
-    d->themeManager = new Digikam::ThemeManager(this);
+    KConfigGroup group( KSharedConfig::openConfig(), "theme");
+    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krita dark"), this);
 
     setAcceptDrops(true);
     setStandardToolBarMenuEnabled(true);
@@ -573,7 +574,6 @@ void KisMainWindow::slotPreferences()
 
 void KisMainWindow::slotThemeChanged()
 {
-
     // save theme changes instantly
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
     group.writeEntry("Theme", d->themeManager->currentThemeName());
@@ -1756,6 +1756,12 @@ void KisMainWindow::forceDockTabFonts()
 QList<QDockWidget*> KisMainWindow::dockWidgets() const
 {
     return d->dockWidgetsMap.values();
+}
+
+QDockWidget* KisMainWindow::dockWidget(const QString &id)
+{
+    if (!d->dockWidgetsMap.contains(id)) return 0;
+    return d->dockWidgetsMap[id];
 }
 
 QList<KoCanvasObserverBase*> KisMainWindow::canvasObservers() const

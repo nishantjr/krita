@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015 Jouni Pentikäinen <joupent@gmail.com>
+ *  Copyright (c) 2015 Dmitry Kazakov <dimula73@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,37 +16,42 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef KIS_ONION_SKIN_DIALOG_H
-#define KIS_ONION_SKIN_DIALOG_H
+#ifndef __KIS_EQUALIZER_COLUMN_H
+#define __KIS_EQUALIZER_COLUMN_H
 
-#include <QDialog>
+#include <QWidget>
+#include <QScopedPointer>
 #include <QSlider>
 
-#include "kis_signal_compressor.h"
+#include "kritaanimationdocker_export.h"
 
-namespace Ui {
-class KisOnionSkinDialog;
-}
 
-class KisOnionSkinDialog : public QDialog
+class KRITAANIMATIONDOCKER_EXPORT KisEqualizerColumn : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit KisOnionSkinDialog(QWidget *parent = 0);
-    ~KisOnionSkinDialog();
+    KisEqualizerColumn(QWidget *parent, int id, const QString &title);
+    ~KisEqualizerColumn();
 
-private:
-    Ui::KisOnionSkinDialog *ui;
+    void setRightmost(bool value);
 
-    QSlider numberOfSkins;
-    QVector<QSlider*> forwardOpacities;
-    QVector<QSlider*> backwardOpacities;
+    int value() const;
+    void setValue(int value);
 
-    KisSignalCompressor m_updatesCompressor;
+    bool state() const;
+    void setState(bool value);
+
+Q_SIGNALS:
+    void sigColumnChanged(int id, bool state, int value);
 
 private Q_SLOTS:
-    void changed();
+    void slotSliderChanged(int value);
+    void slotButtonChanged(bool value);
+
+private:
+    struct Private;
+    const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_ONION_SKIN_DIALOG_H
+#endif /* __KIS_EQUALIZER_COLUMN_H */

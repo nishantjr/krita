@@ -16,43 +16,31 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef __TIMELINE_COLOR_SCHEME_H
-#define __TIMELINE_COLOR_SCHEME_H
+#ifndef __KIS_EQUALIZER_BUTTON_H
+#define __KIS_EQUALIZER_BUTTON_H
 
 #include <QScopedPointer>
+#include <QAbstractButton>
 
-class QColor;
-class QBrush;
-class QFont;
-class QSize;
 
-class TimelineColorScheme
+class KisEqualizerButton : public QAbstractButton
 {
 public:
-    TimelineColorScheme();
-    ~TimelineColorScheme();
+    KisEqualizerButton(QWidget *parent);
+    ~KisEqualizerButton();
 
-    static TimelineColorScheme* instance();
+    void paintEvent(QPaintEvent *event);
+    void setRightmost(bool value);
 
-    QColor selectorColor() const;
-    QColor selectionColor() const;
-    QColor activeLayerBackground() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
-
-    QBrush headerEmpty() const;
-    QBrush headerCachedFrame() const;
-    QBrush headerActive() const;
-
-    QColor frameColor(bool present, bool active)const ;
-
-    QColor onionSkinsSliderColor() const;
-    QColor onionSkinsButtonColor() const;
-
-    QFont getOnionSkinsFont(const QString &maxString, const QSize &availableSize) const;
+    void enterEvent(QEvent *event);
+    void leaveEvent(QEvent *event);
 
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __TIMELINE_COLOR_SCHEME_H */
+#endif /* __KIS_EQUALIZER_BUTTON_H */
