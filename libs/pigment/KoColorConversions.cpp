@@ -740,9 +740,9 @@ void HSYToRGB(const qreal h,const qreal s, const qreal y, qreal *red, qreal *gre
 	}
 
 	//dbgPigment<<"red: "<<r<<", green: "<<g<<", blue: "<<b;
-	if (r>1.0){r=1.0;}
-	if (g>1.0){g=1.0;}
-	if (b>1.0){b=1.0;}
+	//if (r>1.0){r=1.0;}
+	//if (g>1.0){g=1.0;}
+	//if (b>1.0){b=1.0;}
 	if (r<0.0){r=0.0;}
 	if (g<0.0){g=0.0;}
 	if (b<0.0){b=0.0;}
@@ -756,9 +756,9 @@ void RGBToHSY(const qreal r,const qreal g,const qreal b, qreal *h, qreal *s, qre
 //This is LUMA btw, not Luminance.
 //Using these RGB values, we calculate the H, S and I.
 	qreal red; qreal green; qreal blue;
-	if (r>1.0){red=1.0;} else if (r<0.0){red=0.0;} else {red=r;}
-	if (g>1.0){green=1.0;} else if (g<0.0){green=0.0;} else {green=g;}
-	if (b>1.0){blue=1.0;} else if (b<0.0){blue=0.0;} else {blue=b;}
+	if (r<0.0){red=0.0;} else {red=r;}
+	if (g<0.0){green=0.0;} else {green=g;}
+	if (b<0.0){blue=0.0;} else {blue=b;}
 	
 	qreal minval = qMin(r, qMin(g, b));
 	qreal maxval = qMax(r, qMax(g, b));
