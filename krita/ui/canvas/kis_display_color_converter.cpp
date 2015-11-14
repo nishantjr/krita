@@ -609,7 +609,6 @@ KoColor KisDisplayColorConverter::fromHsyF(qreal h, qreal s, qreal y, qreal R, q
     QVector <double> channelValues(3);
     y = pow(y, 2.2);
     HSYToRGB(h, s, y, &channelValues[0], &channelValues[1], &channelValues[2], R, G, B);
-    //YCbCrToRGB(y, h, s, &channelValues[0], &channelValues[1], &channelValues[2], R, G, B);
     KoColorSpaceRegistry::instance()->rgb8()->profile()->DelinearizeFloatValueFast(channelValues);
     QColor qcolor;
     qcolor.setRgbF(qBound(0.0,channelValues[0],1.0), qBound(0.0,channelValues[1],1.0), qBound(0.0,channelValues[2],1.0), 1.0);
@@ -627,7 +626,6 @@ void KisDisplayColorConverter::getHsyF(const KoColor &srcColor, qreal *h, qreal 
     //TODO: if we're going to have KoColor here, remember to check whether the TRC of the profile exists...
     KoColorSpaceRegistry::instance()->rgb8()->profile()->LinearizeFloatValueFast(channelValues);
     RGBToHSY(channelValues[0], channelValues[1], channelValues[2], h, s, y, R, G, B);
-    //RGBToYCbCr(channelValues[0], channelValues[1], channelValues[2], y, h, s, R, G, B);
     *y = pow(*y, 1/2.2);
 }
 

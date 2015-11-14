@@ -994,30 +994,29 @@ void RGBToHCY(const qreal r,const qreal g,const qreal b, qreal *h, qreal *c, qre
     *y=luma;	
 
 }
-void RGBToYCbCr(const qreal r,const qreal g,const qreal b, qreal *y, qreal *cb, qreal *cr, qreal R, qreal G, qreal B)
+void RGBToYUV(const qreal r,const qreal g,const qreal b, qreal *y, qreal *u, qreal *v, qreal R, qreal G, qreal B)
 {
+    qreal uvmax = 0.5;
     qreal luma = R*r+G*g+B*b;
-    //qreal chromaBlue = (0.5*(b - luma /1.0-B))+ 0.5;
-    //qreal chromaRed =  (0.5*(r - luma /1.0-R))+ 0.5;
-    //qreal chromaBlue = (r*(-R   )-g*G+b*(1.0-B)) + 0.5;
-    //qreal chromaRed  = (r*(1.0-R)-g*G-b*     B ) + 0.5;
-    qreal chromaBlue = b- luma;
-    qreal chromaRed  = r- luma;
+    qreal chromaBlue = uvmax*( (b - luma) / (1.0-B) );
+    qreal chromaRed  = uvmax*( (r - luma) / (1.0-R) );
+
     *y = qBound(0.0,luma,1.0);
-    *cb = qBound(0.0,chromaBlue+ 0.5,1.0);
-    *cr = qBound(0.0,chromaRed + 0.5,1.0);
+    *u = qBound(0.0,chromaBlue+ uvmax,1.0);
+    *v = qBound(0.0,chromaRed + uvmax,1.0);
 }
-void YCbCrToRGB(const qreal y, const qreal cb, const qreal cr, qreal *r, qreal *g, qreal *b, qreal R, qreal G, qreal B)
+void YUVToRGB(const qreal y, const qreal u, const qreal v, qreal *r, qreal *g, qreal *b, qreal R, qreal G, qreal B)
 {
-    qreal chromaBlue = qBound(0.0,cb,1.0)- 0.5;
-    qreal chromaRed = qBound(0.0,cr,1.0)- 0.5;
-    //qreal red   = (2 * (1.0-R)) * (chromaRed - 0.5) + y;
-    //qreal green = y- ((2 * (1.0-R) * (R/G)) * (chromaRed - 0.5)) - ((2 * (1.0-B) * (B/G)) * (chromaBlue- 0.5));
-    //qreal blue  = (2 * (1.0-B)) * (chromaBlue- 0.5) + y;
-    qreal red   = y+chromaRed;
-    qreal green = y-((R/G)*(chromaBlue))-((B/G)*(chromaRed));
-    qreal blue  = y+chromaBlue;
-    
+    qreal uvmax = 0.5;
+    qreal chromaBlue = qBound(0.0,u,1.0)- uvmax;//put into -0.5-+0.5 range//
+    qreal chromaRed = qBound(0.0,v,1.0)- uvmax;
+
+    qreal negB  = 1.0-B;
+    qreal negR  = 1.0-R;
+    qreal red   = y+(chromaRed  * (negR / uvmax) );
+    qreal green = y-(chromaBlue * ((B*negB) / (uvmax*G)) ) - (chromaRed* ((R*negR) / (uvmax*G)));
+    qreal blue  = y+(chromaBlue * (negB / uvmax) );
+
     *r=qBound(0.0,red  ,1.0);
     *g=qBound(0.0,green,1.0);
     *b=qBound(0.0,blue ,1.0);

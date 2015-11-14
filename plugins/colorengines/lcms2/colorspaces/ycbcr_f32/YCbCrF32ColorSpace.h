@@ -59,8 +59,8 @@ public:
     virtual void colorFromXML(quint8* pixel, const QDomElement& elt) const;
     virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const;
     virtual QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const;
-    virtual void toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const;
-    virtual QVector <double> fromYCbCr(qreal *y, qreal *cb, qreal *cr) const;
+    virtual void toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const;
+    virtual QVector <double> fromYUV(qreal *y, qreal *u, qreal *v) const;
 
 };
 

@@ -477,10 +477,10 @@ void KoColorSpace::increaseRed(quint8 * pixel, qreal step) const{
         channelValues[i]=channelValuesF[i];
     }
     profile()->LinearizeFloatValue(channelValues);
-    qreal y, cr, cb = 0.0;
-    toYCbCr(channelValues, &y, &cb, &cr);
-    cr += step;
-    channelValues = fromYCbCr(&y, &cb, &cr);
+    qreal y, u, v = 0.0;
+    toYUV(channelValues, &y, &u, &v);
+    u += step;
+    channelValues = fromYUV(&y, &u, &v);
     profile()->DelinearizeFloatValue(channelValues);
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValuesF[i]=channelValues[i];
@@ -495,10 +495,10 @@ void KoColorSpace::increaseGreen(quint8 * pixel, qreal step) const{
         channelValues[i]=channelValuesF[i];
     }
     profile()->LinearizeFloatValue(channelValues);
-    qreal y, cr, cb = 0.0;
-    toYCbCr(channelValues, &y, &cb, &cr);
-    cr -= step;
-    channelValues = fromYCbCr(&y, &cb, &cr);
+    qreal y, u, v = 0.0;
+    toYUV(channelValues, &y, &u, &v);
+    u -= step;
+    channelValues = fromYUV(&y, &u, &v);
     profile()->DelinearizeFloatValue(channelValues);
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValuesF[i]=channelValues[i];
@@ -513,10 +513,10 @@ void KoColorSpace::increaseBlue(quint8 * pixel, qreal step) const{
         channelValues[i]=channelValuesF[i];
     }
     profile()->LinearizeFloatValue(channelValues);
-    qreal y, cr, cb = 0.0;
-    toYCbCr(channelValues, &y, &cb, &cr);
-    cb -= step;
-    channelValues = fromYCbCr(&y, &cb, &cr);
+    qreal y, u, v = 0.0;
+    toYUV(channelValues, &y, &u, &v);
+    v += step;
+    channelValues = fromYUV(&y, &u, &v);
     profile()->DelinearizeFloatValue(channelValues);
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValuesF[i]=channelValues[i];
@@ -531,10 +531,10 @@ void KoColorSpace::increaseYellow(quint8 * pixel, qreal step) const{
         channelValues[i]=channelValuesF[i];
     }
     profile()->LinearizeFloatValue(channelValues);
-    qreal y, cr, cb = 0.0;
-    toYCbCr(channelValues, &y, &cb, &cr);
-    cb += step;
-    channelValues = fromYCbCr(&y, &cb, &cr);
+    qreal y, u, v = 0.0;
+    toYUV(channelValues, &y, &u, &v);
+    v -= step;
+    channelValues = fromYUV(&y, &u, &v);
     profile()->DelinearizeFloatValue(channelValues);
     for (int i=0;i<abs(colorChannelCount());i++){
         channelValuesF[i]=channelValues[i];

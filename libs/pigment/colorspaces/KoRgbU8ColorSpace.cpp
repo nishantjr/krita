@@ -97,15 +97,15 @@ QVector <double> KoRgbU8ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma)
     return channelValues;
 }
 
-void KoRgbU8ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const
+void KoRgbU8ColorSpace::toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const
 {
-    RGBToYCbCr(channelValues[0],channelValues[1],channelValues[2], y, cb, cr);
+    RGBToYUV(channelValues[0],channelValues[1],channelValues[2], y, u, v);
 }
 
-QVector <double> KoRgbU8ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) const
+QVector <double> KoRgbU8ColorSpace::fromYUV(qreal *y, qreal *u, qreal *v) const
 {
     QVector <double> channelValues(4);
-    YCbCrToRGB(*y, *cb, *cr, &channelValues[0],&channelValues[1],&channelValues[2]);
+    YUVToRGB(*y, *u, *v, &channelValues[0],&channelValues[1],&channelValues[2]);
     channelValues[3]=1.0;
     return channelValues;
 }

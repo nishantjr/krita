@@ -75,12 +75,12 @@ QVector <double> GrayF16ColorSpace::fromHSY(qreal *, qreal *, qreal *luma) const
     return channelValues;
 }
 
-void GrayF16ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *, qreal *) const
+void GrayF16ColorSpace::toYUV(QVector <double> channelValues, qreal *y, qreal *, qreal *) const
 {
     *y = channelValues[0];
 }
 
-QVector <double> GrayF16ColorSpace::fromYCbCr(qreal *y, qreal *, qreal *) const
+QVector <double> GrayF16ColorSpace::fromYUV(qreal *y, qreal *, qreal *) const
 {
     QVector <double> channelValues(2);
     channelValues.fill(*y);

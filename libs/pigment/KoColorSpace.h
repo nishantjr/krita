@@ -491,8 +491,8 @@ public:
     virtual void increaseYellow(quint8 * pixel, qreal step) const;
     virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const = 0;
     virtual QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const = 0;
-    virtual void toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const = 0;
-    virtual QVector <double> fromYCbCr(qreal *y, qreal *cb, qreal *cr) const = 0;
+    virtual void toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const = 0;
+    virtual QVector <double> fromYUV(qreal *y, qreal *u, qreal *v) const = 0;
     /**
      * Create a mathematical toolbox compatible with this colorspace
      */

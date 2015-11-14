@@ -191,9 +191,9 @@ void KisCanvasControlsManager::transformRed(int step)
         //rgb.setHsl(r,g,b);
         color.fromQColor(rgb);
     } else if (step<0){
-        color.colorSpace()->increaseGreen(color.data(), 0.01);
+        color.colorSpace()->increaseGreen(color.data(), 0.05);
     } else {
-        color.colorSpace()->increaseRed(color.data(), 0.01);
+        color.colorSpace()->increaseRed(color.data(), 0.05);
     }
     m_view->resourceProvider()->resourceManager()->setResource(KoCanvasResourceManager::ForegroundColor, color);
 }
@@ -209,9 +209,9 @@ void KisCanvasControlsManager::transformBlue(int step)
         //rgb.setHsl(r,g,b);
         color.fromQColor(rgb);
     } else if (step<0){
-        color.colorSpace()->increaseYellow(color.data(), 0.01);
+        color.colorSpace()->increaseYellow(color.data(), 0.05);
     } else {
-        color.colorSpace()->increaseBlue(color.data(), 0.01);
+        color.colorSpace()->increaseBlue(color.data(), 0.05);
     }
     m_view->resourceProvider()->resourceManager()->setResource(KoCanvasResourceManager::ForegroundColor, color);
 }

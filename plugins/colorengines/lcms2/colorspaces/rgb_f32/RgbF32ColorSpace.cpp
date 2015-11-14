@@ -128,7 +128,7 @@ QVector <double> RgbF32ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) 
     return channelValues;
 }
 
-void RgbF32ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const
+void RgbF32ColorSpace::toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const
 {
     QVector <double> colorants(9);
     if (profile()->hasColorants()){
@@ -147,10 +147,10 @@ void RgbF32ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *
         colorants[8] = 0.11;
     }
     
-    RGBToYCbCr(channelValues[0],channelValues[1],channelValues[2], y, cb, cr, colorants[2], colorants[5], colorants[8]);
+    RGBToYUV(channelValues[0],channelValues[1],channelValues[2], y, u, v, colorants[2], colorants[5], colorants[8]);
 }
 
-QVector <double> RgbF32ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) const
+QVector <double> RgbF32ColorSpace::fromYUV(qreal *y, qreal *u, qreal *v) const
 {
     QVector <double> channelValues(4);
     QVector <double> colorants(9);
@@ -169,7 +169,7 @@ QVector <double> RgbF32ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) con
         colorants[5] = 0.59;
         colorants[8] = 0.11;
     }
-    YCbCrToRGB(*y, *cb, *cr, &channelValues[0],&channelValues[1],&channelValues[2], colorants[2], colorants[5], colorants[8]);
+    YUVToRGB(*y, *u, *v, &channelValues[0],&channelValues[1],&channelValues[2], colorants[2], colorants[5], colorants[8]);
     channelValues[3]=1.0;
     return channelValues;
 }

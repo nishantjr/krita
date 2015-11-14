@@ -134,10 +134,10 @@ public:
         channelValues.fill(0.0);
         return channelValues;
     }
-    virtual void toYCbCr(QVector <double>, qreal *, qreal *, qreal *) const {
+    virtual void toYUV(QVector <double>, qreal *, qreal *, qreal *) const {
         warnPigment << i18n("Undefined operation in the %1 color space", m_name);
     }
-    virtual QVector <double> fromYCbCr(qreal *, qreal *, qreal *) const {
+    virtual QVector <double> fromYUV(qreal *, qreal *, qreal *) const {
         warnPigment << i18n("Undefined operation in the %1 color space", m_name);
         QVector <double> channelValues (2);
         channelValues.fill(0.0);

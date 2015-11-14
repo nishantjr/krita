@@ -91,12 +91,12 @@ QVector <double> CmykF32ColorSpace::fromHSY(qreal *, qreal *, qreal *) const
     return dummy;
 }
 
-void CmykF32ColorSpace::toYCbCr(QVector <double> , qreal *, qreal *, qreal *) const
+void CmykF32ColorSpace::toYUV(QVector <double> , qreal *, qreal *, qreal *) const
 {
     
 }
 
-QVector <double> CmykF32ColorSpace::fromYCbCr(qreal *, qreal *, qreal *) const
+QVector <double> CmykF32ColorSpace::fromYUV(qreal *, qreal *, qreal *) const
 {
     QVector <double> dummy(5);
     dummy.fill(1.0);

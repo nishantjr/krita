@@ -91,15 +91,15 @@ QVector <double> XyzF16ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) 
     return channelValues;
 }
 
-void XyzF16ColorSpace::toYCbCr(QVector <double> channelValues, qreal *y, qreal *cb, qreal *cr) const
+void XyzF16ColorSpace::toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const
 {
-    XYZToxyY(channelValues[0],channelValues[1],channelValues[2], cb, cr, y);
+    XYZToxyY(channelValues[0],channelValues[1],channelValues[2], u, v, y);
 }
 
-QVector <double> XyzF16ColorSpace::fromYCbCr(qreal *y, qreal *cb, qreal *cr) const
+QVector <double> XyzF16ColorSpace::fromYUV(qreal *y, qreal *u, qreal *v) const
 {
     QVector <double> channelValues(4);
-    xyYToXYZ(*cb, *cr, *y, &channelValues[0],&channelValues[1],&channelValues[2]);
+    xyYToXYZ(*u, *v, *y, &channelValues[0],&channelValues[1],&channelValues[2]);
     channelValues[3]=1.0;
     return channelValues;
 }
