@@ -50,56 +50,40 @@ KisCanvasControlsManager::~KisCanvasControlsManager()
 
 void KisCanvasControlsManager::setup(KisActionManager *actionManager)
 {
-    KisAction *lighterColor = new KisAction(i18n("Make brush color lighter"));
-    lighterColor->setDefaultShortcut(Qt::Key_L);
-    actionManager->addAction("make_brush_color_lighter", lighterColor);
+    KisAction *lighterColor = actionManager->createAction("make_brush_color_lighter");
     connect(lighterColor, SIGNAL(triggered()), SLOT(makeColorLighter()));
 
-    KisAction *darkerColor = new KisAction(i18n("Make brush color darker"));
-    darkerColor->setDefaultShortcut(Qt::Key_K);
-    actionManager->addAction("make_brush_color_darker", darkerColor);
+    KisAction *darkerColor = actionManager->createAction("make_brush_color_darker");
     connect(darkerColor, SIGNAL(triggered()), SLOT(makeColorDarker()));
     
-    KisAction *saturatedColor = new KisAction(i18n("Make brush color more saturated"));
-    actionManager->addAction("make_brush_color_saturated", saturatedColor);
+    KisAction *saturatedColor = actionManager->createAction("make_brush_color_saturated");
     connect(saturatedColor, SIGNAL(triggered()), SLOT(makeColorSaturated()));
 
-    KisAction *desaturatedColor = new KisAction(i18n("Make brush color more desaturated"));
-    actionManager->addAction("make_brush_color_desaturated", desaturatedColor);
+    KisAction *desaturatedColor = actionManager->createAction("make_brush_color_desaturated");
     connect(desaturatedColor, SIGNAL(triggered()), SLOT(makeColorDesaturated()));
     
-    KisAction *hueClockwise = new KisAction(i18n("Shift brush color hue clockwise"));
-    actionManager->addAction("shift_brush_color_clockwise", hueClockwise);
+    KisAction *hueClockwise = actionManager->createAction("shift_brush_color_clockwise");
     connect(hueClockwise, SIGNAL(triggered()), SLOT(shiftHueClockWise()));
 
-    KisAction *hueCounterClockwise = new KisAction(i18n("Shift brush color hue counter-clockwise"));
-    actionManager->addAction("shift_brush_color_counter_clockwise", hueCounterClockwise);
+    KisAction *hueCounterClockwise = actionManager->createAction("shift_brush_color_counter_clockwise");
     connect(hueCounterClockwise, SIGNAL(triggered()), SLOT(shiftHueCounterClockWise()));
     
-    KisAction *moreRed = new KisAction(i18n("Make brush color redder"));
-    actionManager->addAction("make_brush_color_redder", moreRed);
+    KisAction *moreRed = actionManager->createAction("make_brush_color_redder");
     connect(moreRed, SIGNAL(triggered()), SLOT(makeColorRed()));
     
-    KisAction *moreGreen = new KisAction(i18n("Make brush color greener"));
-    actionManager->addAction("make_brush_color_greener", moreGreen);
+    KisAction *moreGreen = actionManager->createAction("make_brush_color_greener");
     connect(moreGreen, SIGNAL(triggered()), SLOT(makeColorGreen()));
     
-    KisAction *moreBlue = new KisAction(i18n("Make brush color bluer"));
-    actionManager->addAction("make_brush_color_bluer", moreBlue);
+    KisAction *moreBlue = actionManager->createAction("make_brush_color_bluer");
     connect(moreBlue, SIGNAL(triggered()), SLOT(makeColorBlue()));
 
-    KisAction *moreYellow = new KisAction(i18n("Make brush color Yellower"));
-    actionManager->addAction("make_brush_color_yellower", moreYellow);
+    KisAction *moreYellow = actionManager->createAction("make_brush_color_yellower");
     connect(moreYellow, SIGNAL(triggered()), SLOT(makeColorYellow()));
     
-    KisAction *increaseOpacity = new KisAction(i18n("Increase opacity"));
-    increaseOpacity->setDefaultShortcut(Qt::Key_O);
-    actionManager->addAction("increase_opacity", increaseOpacity);
+    KisAction *increaseOpacity = actionManager->createAction("increase_opacity");
     connect(increaseOpacity, SIGNAL(triggered()), SLOT(increaseOpacity()));
 
-    KisAction *decreaseOpacity = new KisAction(i18n("Decrease opacity"));
-    decreaseOpacity->setDefaultShortcut(Qt::Key_I);
-    actionManager->addAction("decrease_opacity", decreaseOpacity);
+    KisAction *decreaseOpacity = actionManager->createAction("decrease_opacity");
     connect(decreaseOpacity, SIGNAL(triggered()), SLOT(decreaseOpacity()));
 }
 
