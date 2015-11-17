@@ -192,11 +192,8 @@ KisImage::KisImage(KisUndoStore *undoStore, qint32 width, qint32 height, const K
     }
 
     const KoColorSpace *c;
-    if (colorSpace == 0) {
+    if (colorSpace != 0) {
         c = colorSpace;
-        // m_d = new KisImagePrivate(this, width, height,
-        //                           KoColorSpaceRegistry::instance()->rgb8(),
-        //                           undoStore, startProjection);
     } else {
         c = KoColorSpaceRegistry::instance()->rgb8();
     }
@@ -1375,6 +1372,8 @@ QImage KisImage::convertToQImage(const QSize& scaledImageSize, const KoColorProf
 
     KisTransformWorker worker(dev, scaleX, scaleY, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, updater, KisFilterStrategyRegistry::instance()->value("Bicubic"));
     worker.run();
+
+    delete updater;
 
     return dev->convertToQImage(profile);
 }
