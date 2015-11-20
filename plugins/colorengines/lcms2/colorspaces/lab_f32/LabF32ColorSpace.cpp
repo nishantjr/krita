@@ -93,16 +93,16 @@ QVector <double> LabF32ColorSpace::fromHSY(qreal *hue, qreal *sat, qreal *luma) 
 void LabF32ColorSpace::toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const
 {
     *y =channelValues[0];
-    *v=channelValues[1];
-    *u=channelValues[2];
+    *u=channelValues[1];
+    *v=channelValues[2];
 }
 
 QVector <double> LabF32ColorSpace::fromYUV(qreal *y, qreal *u, qreal *v) const
 {
     QVector <double> channelValues(4);
     channelValues[0]=*y;
-    channelValues[1]=*v;
-    channelValues[2]=*u;
+    channelValues[1]=*u;
+    channelValues[2]=*v;
     channelValues[3]=1.0;
     return channelValues;
 }

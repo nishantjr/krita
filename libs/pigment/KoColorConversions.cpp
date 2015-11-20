@@ -1024,18 +1024,27 @@ void YUVToRGB(const qreal y, const qreal u, const qreal v, qreal *r, qreal *g, q
 
 void LabToLCH(const qreal l, const qreal a, const qreal b, qreal *L, qreal *C, qreal *H)
 {
+    qreal atemp =  (a - 0.5)*10.0;//the multiplication is only so that we get out of floating-point maths
+    qreal btemp =  (b - 0.5)*10.0;
     *L=qBound(0.0,l,1.0);
-    *C=sqrt(pow( qBound(0.0,a,1.0)- 0.5 , 2.0) + pow(qBound(0.0,b,1.0) - 0.5 , 2.0));
-    *H=atan((qBound(0.0,a,1.0) - 0.5)/(qBound(0.0,b,1.0) - 0.5));
-    if (*H<0.0) {*H+=360;}
-    *H/=360.0;
+    *C=sqrt( pow(atemp,2.0) + pow(btemp,2.0) )*0.1;
+    qreal hue = (atan2(btemp,atemp))* 180.0 / M_PI;
+    
+    if (hue<0.0) {
+        hue+=360.0;
+    } else {
+        hue = fmod(hue, 360.0);
+    }
+    *H=hue/360.0;
 }
 
 void LCHToLab(const qreal L, const qreal C, const qreal H, qreal *l, qreal *a, qreal *b)
 {
+    qreal chroma = qBound(0.0,C,1.0);
+    qreal hue = (qBound(0.0,H,1.0)*360.0)* M_PI / 180.0;
     *l=qBound(0.0,L,1.0);
-    *a=(qBound(0.0,C,1.0)*cos(qBound(0.0,H,1.0)*360.0))+ 0.5;
-    *b=(qBound(0.0,C,1.0)*sin(qBound(0.0,H,1.0)*360.0))+ 0.5;
+    *a=(chroma * cos(hue) ) + 0.5;
+    *b=(chroma * sin(hue) ) + 0.5;
 }
 
 void XYZToxyY(const qreal X, const qreal Y, const qreal Z, qreal *x, qreal *y, qreal *yY)
