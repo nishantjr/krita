@@ -130,7 +130,7 @@ void KisCanvasControlsManager::transformSaturation(int step)
         QColor rgb = color.toQColor();
         int h = 0, s = 0, v = 0;
         rgb.getHsl(&h,&s,&v);
-        s += -step;
+        s += step;
         s = qBound(0,s,255);
         rgb.setHsl(h,s,v);
         color.fromQColor(rgb);
@@ -152,7 +152,7 @@ void KisCanvasControlsManager::transformHue(int step)
         QColor rgb = color.toQColor();
         int h = 0, s = 0, v = 0;
         rgb.getHsl(&h,&s,&v);
-        h += -step;
+        h += step;
         if (h>360.0 || h<0.0){h=fmod(h, 360.0);}
         rgb.setHsl(h,s,v);
         color.fromQColor(rgb);
@@ -170,11 +170,7 @@ void KisCanvasControlsManager::transformRed(int step)
     if (!m_view->resourceProvider()->resourceManager()) return;
 
     KoColor color = m_view->resourceProvider()->resourceManager()->resource(KoCanvasResourceManager::ForegroundColor).value<KoColor>();
-    if (color.colorSpace()->colorModelId().id()=="CMYKA"){
-        QColor rgb = color.toQColor();
-        //rgb.setHsl(r,g,b);
-        color.fromQColor(rgb);
-    } else if (step<0){
+    if (step<0){
         color.colorSpace()->increaseGreen(color.data(), 0.05);
     } else {
         color.colorSpace()->increaseRed(color.data(), 0.05);
@@ -188,11 +184,7 @@ void KisCanvasControlsManager::transformBlue(int step)
     if (!m_view->resourceProvider()->resourceManager()) return;
 
     KoColor color = m_view->resourceProvider()->resourceManager()->resource(KoCanvasResourceManager::ForegroundColor).value<KoColor>();
-    if (color.colorSpace()->colorModelId().id()=="CMYKA"){
-        QColor rgb = color.toQColor();
-        //rgb.setHsl(r,g,b);
-        color.fromQColor(rgb);
-    } else if (step<0){
+    if (step<0){
         color.colorSpace()->increaseYellow(color.data(), 0.05);
     } else {
         color.colorSpace()->increaseBlue(color.data(), 0.05);

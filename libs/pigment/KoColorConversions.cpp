@@ -1056,3 +1056,47 @@ void xyYToXYZ(const qreal x, const qreal y, const qreal yY, qreal *X, qreal *Y, 
     *Z=((1.0-x-y)/yY)/y;
     *Y=yY;
 }
+
+void CMYToCMYK(qreal *c, qreal *m, qreal *y, qreal *k)
+{
+    qreal cyan, magenta, yellow, key = 1.0;
+    cyan    = *c;
+    magenta = *m;
+    yellow  = *y;
+    if ( cyan    < key ) {key = cyan;}
+    if ( magenta < key ) {key = magenta;}
+    if ( yellow  < key ) {key = yellow;}
+    
+    if ( key == 1 ) { //Black
+        cyan    = 0;
+        magenta = 0;
+        yellow  = 0;
+    }
+    else {
+        cyan    = ( cyan    - key ) / ( 1.0 - key );
+        magenta = ( magenta - key ) / ( 1.0 - key );
+        yellow  = ( yellow  - key ) / ( 1.0 - key );
+    }
+    
+    *c=qBound(0.0,cyan   ,1.0);
+    *m=qBound(0.0,magenta,1.0);
+    *y=qBound(0.0,yellow ,1.0);
+    *k=qBound(0.0,key    ,1.0);
+}
+
+/*code from easyrgb.com*/
+void CMYKToCMY(qreal *c, qreal *m, qreal *y, qreal *k)
+{
+    qreal key     = *k;
+    qreal cyan    = *c;
+    qreal magenta = *m;
+    qreal yellow  = *y;
+    
+    cyan    = ( cyan    * ( 1.0 - key ) + key );
+    magenta = ( magenta * ( 1.0 - key ) + key );
+    yellow  = ( yellow  * ( 1.0 - key ) + key );
+    
+    *c=qBound(0.0,cyan   ,1.0);
+    *m=qBound(0.0,magenta,1.0);
+    *y=qBound(0.0,yellow ,1.0);
+}

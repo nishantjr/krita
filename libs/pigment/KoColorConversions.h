@@ -77,6 +77,8 @@ KRITAPIGMENT_EXPORT void LCHToLab(const qreal L, const qreal C, const qreal H, q
 KRITAPIGMENT_EXPORT void XYZToxyY(const qreal X, const qreal Y, const qreal Z, qreal *x, qreal *y, qreal *yY);
 KRITAPIGMENT_EXPORT void xyYToXYZ(const qreal x, const qreal y, const qreal yY, qreal *X, qreal *Y, qreal *Z);
 
+KRITAPIGMENT_EXPORT void CMYToCMYK(qreal *c, qreal *m, qreal *y, qreal *k);
+KRITAPIGMENT_EXPORT void CMYKToCMY(qreal *c, qreal *m, qreal *y, qreal *k);
 
 #endif // _KO_COLORCONVERSIONS_H_
 
