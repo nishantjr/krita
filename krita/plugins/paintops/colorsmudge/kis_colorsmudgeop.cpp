@@ -137,6 +137,15 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
     if (!painter()->device() || !brush || !brush->canPaintFor(info)) {
         return KisSpacingInformation(1.0);
     }
+    
+    //if precision
+    KoColor colorSpaceChanger = painter()->paintColor();
+    const KoColorSpace* preciseColorSpace = colorSpaceChanger.colorSpace();
+    if (colorSpaceChanger.colorSpace()->colorDepthId().id() == "U8") {
+	preciseColorSpace = KoColorSpaceRegistry::instance()->colorSpace(colorSpaceChanger.colorSpace()->colorModelId().id(), "U16", colorSpaceChanger.profile() );
+        colorSpaceChanger.convertTo(preciseColorSpace);
+    }
+    painter()->setPaintColor(colorSpaceChanger);
 
     // get the scaling factor calculated by the size option
     qreal scale    = m_sizeOption.apply(info);
