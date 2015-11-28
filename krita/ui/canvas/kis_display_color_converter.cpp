@@ -589,7 +589,7 @@ KoColor KisDisplayColorConverter::fromHsiF(qreal h, qreal s, qreal i)
     qreal a=1.0;
     HSIToRGB(h, s, i, &r, &g, &b);
     QColor qcolor;
-    qcolor.setRgbF(r, g, b, a);
+    qcolor.setRgbF(qBound(0.0,r,1.0), qBound(0.0,g,1.0), qBound(0.0,b,1.0), a);
     return m_d->approximateFromQColor(qcolor);
 }
 

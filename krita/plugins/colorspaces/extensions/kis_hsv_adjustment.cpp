@@ -169,22 +169,20 @@ public:
                         qreal green = SCALE_TO_FLOAT(src->green);
                         qreal blue = SCALE_TO_FLOAT(src->blue);
                         qreal hue, sat, intensity;
-                        RGBToHSI(red, green, blue, &hue, &sat, &intensity);
+                        RGBToHCI(red, green, blue, &hue, &sat, &intensity);
 
                         hue *=360.0;
                         hue += m_adj_h * 180;
-                        if (hue > 360) hue -= 360;
+                        //if (intensity+m_adj_v>1.0){hue+=180.0;}
                         if (hue < 0) hue += 360;
+                        hue = fmod(hue, 360.0);
 
                         sat *= (m_adj_s + 1.0);
-                        sat = qBound(0.0, sat, 1.0);
+                        //sat = qBound(0.0, sat, 1.0);
+                        
+                        intensity += (m_adj_v);
 
-                        if (m_adj_v < 0)
-                            intensity *= (m_adj_v + 1.0);
-                        else
-                            intensity += (m_adj_v * (1.0 - intensity));
-
-                        HSIToRGB(hue/360.0, sat, intensity, &red, &green, &blue);
+                        HCIToRGB(hue/360.0, sat, intensity, &red, &green, &blue);
 
                         r = red;
                         g = green;
@@ -195,23 +193,21 @@ public:
                         qreal green = SCALE_TO_FLOAT(src->green);
                         qreal blue = SCALE_TO_FLOAT(src->blue);
                         qreal hue, sat, luma;
-                        RGBToHSY(red, green, blue, &hue, &sat, &luma, lumaR, lumaG, lumaB);
+                        RGBToHCY(red, green, blue, &hue, &sat, &luma, lumaR, lumaG, lumaB);
 
                         hue *=360.0;
                         hue += m_adj_h * 180;
-                        if (hue > 360) hue -= 360;
+                        //if (luma+m_adj_v>1.0){hue+=180.0;}
                         if (hue < 0) hue += 360;
+                        hue = fmod(hue, 360.0);
 
                         sat *= (m_adj_s + 1.0);
-                        sat = qBound(0.0, sat, 1.0);
+                        //sat = qBound(0.0, sat, 1.0);
 
-                        if (m_adj_v < 0)
-                            luma *= (m_adj_v + 1.0);
-                        else
-                            luma += (m_adj_v * (1.0 - luma));
+                        luma += m_adj_v;
 
 
-                        HSYToRGB(hue/360.0, sat, luma, &red, &green, &blue, lumaR, lumaG, lumaB);
+                        HCYToRGB(hue/360.0, sat, luma, &red, &green, &blue, lumaR, lumaG, lumaB);
                         r = red;
                         g = green;
                         b = blue;
@@ -225,15 +221,14 @@ public:
                         RGBToYUV(red, green, blue, &y, &cb, &cr, lumaR, lumaG, lumaB);
 
                         cb *= (m_adj_h + 1.0);
-                        cb = qBound(0.0, cb, 1.0);
+                        //cb = qBound(0.0, cb, 1.0);
 
                         cr *= (m_adj_s + 1.0);
-                        cr = qBound(0.0, cr, 1.0);
+                        //cr = qBound(0.0, cr, 1.0);
 
-                        if (m_adj_v < 0)
-                            y *= (m_adj_v + 1.0);
-                        else
-                            y += (m_adj_v * (1.0 - y));
+                        
+                        
+                        y += (m_adj_v);
 
 
                         YUVToRGB(y, cb, cr, &red, &green, &blue, lumaR, lumaG, lumaB);
