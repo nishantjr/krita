@@ -37,6 +37,8 @@ KisSmudgeOptionWidget::KisSmudgeOptionWidget()
     mCbSmudgeMode = new QComboBox();
     mCbSmudgeMode->addItem(i18n("Smearing"), KisSmudgeOption::SMEARING_MODE);
     mCbSmudgeMode->addItem("dulling-placeholder" , KisSmudgeOption::DULLING_MODE);
+    mCbSmudgeMode->addItem(i18n("Advanced Dulling") , KisSmudgeOption::YUV_MODE);
+    mCbSmudgeMode->addItem(i18n("Saturation Maintaining Dulling") , KisSmudgeOption::HSY_MODE);
 
     // the text for the second item is initialized here
     updateBrushPierced(false);
