@@ -142,11 +142,11 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
     //if precision
     KoColor colorSpaceChanger = painter()->paintColor();
     const KoColorSpace* preciseColorSpace = colorSpaceChanger.colorSpace();
-    if (colorSpaceChanger.colorSpace()->colorDepthId().id() == "U8") {
+    /*if (colorSpaceChanger.colorSpace()->colorDepthId().id() == "U8") {
 	preciseColorSpace = KoColorSpaceRegistry::instance()->colorSpace(colorSpaceChanger.colorSpace()->colorModelId().id(), "U16", colorSpaceChanger.profile() );
         colorSpaceChanger.convertTo(preciseColorSpace);
     }
-    painter()->setPaintColor(colorSpaceChanger);
+    painter()->setPaintColor(colorSpaceChanger);*/
 
     // get the scaling factor calculated by the size option
     qreal scale    = m_sizeOption.apply(info);
@@ -256,6 +256,10 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             KoColor paintColor = painter()->paintColor();
             m_gradientOption.apply(paintColor, m_gradient, info);
             
+            if (paintColor.colorSpace()->colorModelId().id() == "CMYKA" || colorSpaceChanger.colorSpace()->colorModelId().id() == "XYZA") {
+                preciseColorSpace = KoColorSpaceRegistry::instance()->lab16();
+                paintColor.convertTo(preciseColorSpace);
+            }
             smudgeColor.convertTo(paintColor.colorSpace());
             
             int channelnumber = abs(paintColor.colorSpace()->channelCount());
@@ -280,8 +284,10 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             m_colorRateOption.apply(*m_colorRatePainter, info, 0.0, maxColorRate, fpOpacity);
             
             //now first apply gamma
-            Sy = pow(Sy, 1/2.2);
-            Py = pow(Py, 1/2.2);
+            if (paintColor.colorSpace()->profile()->hasTRC()){
+                Sy = pow(Sy, 1/2.2);
+                Py = pow(Py, 1/2.2);
+            }
             //then avarage
             qreal Fy, Fu, Fv = 0.0;
             if (smudgeColor.opacityF()>0){
@@ -295,7 +301,9 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             }
             qreal alpha = (smudgeColor.opacityF()+paintColor.opacityF())*0.5;
             //delinearize
-            Fy = pow(Fy, 2.2);
+            if (paintColor.colorSpace()->profile()->hasTRC()){
+                Fy = pow(Fy, 2.2);
+            }
             channelValues = paintColor.colorSpace()->fromYUV(&Fy, &Fu, &Fv);
             paintColor.colorSpace()->profile()->DelinearizeFloatValue(channelValues);
             for (int i=0;i<channelnumber;i++){
@@ -328,6 +336,10 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             KoColor paintColor = painter()->paintColor();
             m_gradientOption.apply(paintColor, m_gradient, info);
             
+            if (paintColor.colorSpace()->colorModelId().id() == "CMYKA" || colorSpaceChanger.colorSpace()->colorModelId().id() == "XYZA") {
+                preciseColorSpace = KoColorSpaceRegistry::instance()->lab16();
+                paintColor.convertTo(preciseColorSpace);
+            }
             smudgeColor.convertTo(paintColor.colorSpace());
             
             int channelnumber = abs(paintColor.colorSpace()->channelCount());
@@ -352,8 +364,10 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             m_colorRateOption.apply(*m_colorRatePainter, info, 0.0, maxColorRate, fpOpacity);
             
             //now first apply gamma
-            Sy = pow(Sy, 1/2.2);
-            Py = pow(Py, 1/2.2);
+            if (paintColor.colorSpace()->profile()->hasTRC()){
+                Sy = pow(Sy, 1/2.2);
+                Py = pow(Py, 1/2.2);
+            }
             //then avarage
             //hue is a special case. We want <60 and > 240 to behave differently.
             qreal Fh, Fs, Fy;
@@ -379,7 +393,9 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             
             qreal alpha = (smudgeColor.opacityF()+paintColor.opacityF())*0.5;
             //delinearize
-            Fy = pow(Fy, 2.2);
+            if (paintColor.colorSpace()->profile()->hasTRC()){
+                Fy = pow(Fy, 2.2);
+            }
             channelValues = paintColor.colorSpace()->fromHSY(&Fh, &Fs, &Fy);
             paintColor.colorSpace()->profile()->DelinearizeFloatValue(channelValues);
             for (int i=0;i<channelnumber;i++){
