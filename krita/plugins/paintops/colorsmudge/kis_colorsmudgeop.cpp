@@ -238,21 +238,20 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
         }
     } else if (m_smudgeRateOption.getMode() == KisSmudgeOption::YUV_MODE){
         QPoint pt = (srcDabRect.topLeft() + hotSpot).toPoint();
+        KoColor smudgeColor;
         if (m_smudgeRadiusOption.isChecked()) {
             qreal effectiveSize = 0.5 * (m_dstDabRect.width() + m_dstDabRect.height());
             m_smudgeRadiusOption.apply(*m_smudgePainter, info, effectiveSize, pt.x(), pt.y(), painter()->device());
 
-            KoColor color2 = m_smudgePainter->paintColor();
-            m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), color2);
-
+            smudgeColor = m_smudgePainter->paintColor();
         } else {
-            KoColor smudgeColor = painter()->paintColor();
-
+            smudgeColor = painter()->paintColor();
             // get the pixel on the canvas that lies beneath the hot spot
             // of the dab and fill  the temporary paint device with that color
 
             KisCrossDeviceColorPickerInt colorPicker(painter()->device(), smudgeColor);
             colorPicker.pickColor(pt.x(), pt.y(), smudgeColor.data());
+        }
             KoColor paintColor = painter()->paintColor();
             m_gradientOption.apply(paintColor, m_gradient, info);
             
@@ -297,7 +296,7 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             } else {
                 Fy = Py;
                 Fu = Pu;
-                Fv = Sv;
+                Fv = Pv;
             }
             qreal alpha = (smudgeColor.opacityF()+paintColor.opacityF())*0.5;
             //delinearize
@@ -316,23 +315,22 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             paintColor.setOpacity(alpha);
 
             m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), paintColor);
-        }
     } else {
             QPoint pt = (srcDabRect.topLeft() + hotSpot).toPoint();
+            KoColor smudgeColor;
         if (m_smudgeRadiusOption.isChecked()) {
             qreal effectiveSize = 0.5 * (m_dstDabRect.width() + m_dstDabRect.height());
             m_smudgeRadiusOption.apply(*m_smudgePainter, info, effectiveSize, pt.x(), pt.y(), painter()->device());
 
-            KoColor color2 = m_smudgePainter->paintColor();
-            m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), color2);
+            smudgeColor = m_smudgePainter->paintColor();
         } else {
-            KoColor smudgeColor = painter()->paintColor();
-
+            smudgeColor = painter()->paintColor();
             // get the pixel on the canvas that lies beneath the hot spot
             // of the dab and fill  the temporary paint device with that color
 
             KisCrossDeviceColorPickerInt colorPicker(painter()->device(), smudgeColor);
             colorPicker.pickColor(pt.x(), pt.y(), smudgeColor.data());
+        }
             KoColor paintColor = painter()->paintColor();
             m_gradientOption.apply(paintColor, m_gradient, info);
             
@@ -373,14 +371,22 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             qreal Fh, Fs, Fy;
             
             if (smudgeColor.opacityF()>0){ 
-                if ((Sh*360<60 && Ph*360>=240) || (Ph*360<60 && Sh*360>=240)) {
-                    qreal segment = (1.0/6.0);
-                    Sh -= segment;
-                    Ph -= segment;
-                    Fh = ( (Sh*(255-m_colorRatePainter->opacity()) ) + (Ph*m_colorRatePainter->opacity()) ) / 255.0;
-                    Fh = (1.0-Fh)+segment;
+                if (qMin(Ps, Ss) > 0.0){
+                    if (qMax(Ph, Sh)-qMin(Ph, Sh)>0.5) {
+                        qreal difference = qMax(Ph, Sh)-qMin(Ph, Sh);
+                        difference = 1.0-difference;
+                        difference = (difference*m_colorRatePainter->opacity()) / 255.0;
+                        Fh = qMax(Ph, Sh)+difference;
+                        if (Fh>1.0){Fh-=1.0;}
+                    } else {
+                        Fh = ( (Sh*(255-m_colorRatePainter->opacity()) ) + (Ph*m_colorRatePainter->opacity()) ) / 255.0;
+                    }
                 } else {
-                    Fh = ( (Sh*(255-m_colorRatePainter->opacity()) ) + (Ph*m_colorRatePainter->opacity()) ) / 255.0;
+                    if (Ps>0.0) {
+                        Fh = Ph;
+                    } else {
+                        Fh = Sh;
+                    }
                 }
                 Fh = qBound(0.0,Fh,1.0);
                 Fs = ( (Ss*(255-m_colorRatePainter->opacity()) ) + (Ps*m_colorRatePainter->opacity()) ) / 255.0;
@@ -408,7 +414,6 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             paintColor.setOpacity(alpha);
 
             m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), paintColor);
-        }
     }
 
     // if the user selected the color smudge option,
@@ -446,7 +451,9 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
 
     // then blit the temporary painting device on the canvas at the current brush position
     // the alpha mask (maskDab) will be used here to only blit the pixels that are in the area (shape) of the brush
-    painter()->setCompositeOp(COMPOSITE_COPY);
+    if (m_smudgeRateOption.getMode() != KisSmudgeOption::YUV_MODE && m_smudgeRateOption.getMode() != KisSmudgeOption::HSY_MODE) {
+        painter()->setCompositeOp(COMPOSITE_COPY);
+    }
     painter()->bitBltWithFixedSelection(m_dstDabRect.x(), m_dstDabRect.y(), m_tempDev, m_maskDab, m_dstDabRect.width(), m_dstDabRect.height());
     painter()->renderMirrorMaskSafe(m_dstDabRect, m_tempDev, 0, 0, m_maskDab, !m_dabCache->needSeparateOriginal());
 
