@@ -40,21 +40,24 @@ public:
         return QString("YCBCRF32");
     }
 
-    virtual KoID colorModelId() const {
+    virtual KoID colorModelId() const
+    {
         return YCbCrAColorModelID;
     }
 
-    virtual KoID colorDepthId() const {
+    virtual KoID colorDepthId() const
+    {
         return Float32BitsColorDepthID;
     }
 
-    virtual bool hasHighDynamicRange() const {
+    virtual bool hasHighDynamicRange() const
+    {
         return true;
     }
 
-    virtual KoColorSpace* clone() const;
+    virtual KoColorSpace *clone() const;
 
-    virtual void colorToXML(const quint8* pixel, QDomDocument& doc, QDomElement& colorElt) const;
+    virtual void colorToXML(const quint8 *pixel, QDomDocument &doc, QDomElement &colorElt) const;
 
     virtual void colorFromXML(quint8* pixel, const QDomElement& elt) const;
     virtual void toHSY(QVector <double> channelValues, qreal *hue, qreal *sat, qreal *luma) const;
@@ -63,7 +66,6 @@ public:
     virtual QVector <double> fromYUV(qreal *y, qreal *u, qreal *v) const;
 
 };
-
 
 class YCbCrF32ColorSpaceFactory : public LcmsColorSpaceFactory
 {
@@ -74,35 +76,43 @@ public:
     {
     }
 
-    virtual QString id() const {
+    virtual QString id() const
+    {
         return YCbCrF32ColorSpace::colorSpaceId();
     }
 
-    virtual QString name() const {
+    virtual QString name() const
+    {
         return i18n("YCBCR (32-bit float/channel)");
     }
 
-    virtual bool userVisible() const {
+    virtual bool userVisible() const
+    {
         return true;
     }
 
-    virtual KoID colorModelId() const {
+    virtual KoID colorModelId() const
+    {
         return YCbCrAColorModelID;
     }
 
-    virtual KoID colorDepthId() const {
+    virtual KoID colorDepthId() const
+    {
         return Float32BitsColorDepthID;
     }
 
-    virtual int referenceDepth() const {
+    virtual int referenceDepth() const
+    {
         return 32;
     }
 
-    virtual KoColorSpace *createColorSpace(const KoColorProfile *p) const {
+    virtual KoColorSpace *createColorSpace(const KoColorProfile *p) const
+    {
         return new YCbCrF32ColorSpace(name(), p->clone());
     }
 
-    virtual QString defaultProfile() const {
+    virtual QString defaultProfile() const
+    {
         return QString();
     }
 
@@ -111,6 +121,5 @@ public:
         return true;
     }
 };
-
 
 #endif

@@ -19,7 +19,6 @@
 #include "opengl/kis_opengl_image_textures.h"
 
 #ifdef HAVE_OPENGL
-#include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLContext>
 
@@ -183,9 +182,6 @@ void KisOpenGLImageTextures::createImageTextureTiles()
     m_storedImageBounds = m_image->bounds();
     const int lastCol = xToCol(m_image->width());
     const int lastRow = yToRow(m_image->height());
-    if (lastCol == 0) {
-      return;
-    }
 
     m_numCols = lastCol + 1;
 
@@ -203,6 +199,7 @@ void KisOpenGLImageTextures::createImageTextureTiles()
         m_initialized = true;
         dbgUI  << "OpenGL: creating texture tiles of size" << m_texturesInfo.height << "x" << m_texturesInfo.width;
 
+        m_textureTiles.reserve((lastRow+1)*m_numCols);
         for (int row = 0; row <= lastRow; row++) {
             for (int col = 0; col <= lastCol; col++) {
                 QRect tileRect = calculateTileRect(col, row);
@@ -227,7 +224,7 @@ void KisOpenGLImageTextures::destroyImageTextureTiles()
 {
     if(m_textureTiles.isEmpty()) return;
 
-    foreach(KisTextureTile *tile, m_textureTiles) {
+    Q_FOREACH (KisTextureTile *tile, m_textureTiles) {
         delete tile;
     }
     m_textureTiles.clear();
@@ -348,7 +345,7 @@ void KisOpenGLImageTextures::recalculateCache(KisUpdateInfoSP info)
     if(!glInfo) return;
 
     KisTextureTileUpdateInfoSP tileInfo;
-    foreach(tileInfo, glInfo->tileList) {
+    Q_FOREACH (tileInfo, glInfo->tileList) {
         KisTextureTile *tile = getTextureTileCR(tileInfo->tileCol(), tileInfo->tileRow());
         KIS_ASSERT_RECOVER_RETURN(tile);
 
@@ -403,7 +400,7 @@ void KisOpenGLImageTextures::updateConfig(bool useBuffer, int NumMipmapLevels)
 {
     if(m_textureTiles.isEmpty()) return;
 
-    foreach(KisTextureTile *tile, m_textureTiles) {
+    Q_FOREACH (KisTextureTile *tile, m_textureTiles) {
         tile->setUseBuffer(useBuffer);
         tile->setNumMipmapLevels(NumMipmapLevels);
     }
