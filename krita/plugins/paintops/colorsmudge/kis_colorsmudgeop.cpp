@@ -389,7 +389,13 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
                     }
                 }
                 Fh = qBound(0.0,Fh,1.0);
-                Fs = ( (Ss*(255-m_colorRatePainter->opacity()) ) + (Ps*m_colorRatePainter->opacity()) ) / 255.0;
+                if (Sy==0.0 || Sy==1.0) {//if it's not pure white or black. need to think about this in regards to floating point.
+                    Fs = Ps;
+                } else if (Py==0.0 || Py==1.0) {
+                    Fs = Ss;
+                } else {
+                    Fs = ( (Ss*(255-m_colorRatePainter->opacity()) ) + (Ps*m_colorRatePainter->opacity()) ) / 255.0;
+                }
                 Fy = ( (Sy*(255-m_colorRatePainter->opacity()) ) + (Py*m_colorRatePainter->opacity()) ) / 255.0;
             } else {
                 Fh = Ph;
