@@ -169,32 +169,20 @@ void KisAdvancedColorSpaceSelector::fillDescription()
             //QString text = currentColorSpace()->profile()->info() + " =" +
             d->colorSpaceSelector->lblXYZ_W->setText(nameWhitePoint(whitepoint));
             d->colorSpaceSelector->lblXYZ_W->setToolTip(QString::number(whitepoint[0], 'f', 4) + ", " + QString::number(whitepoint[1], 'f', 4) + ", " + QString::number(whitepoint[2], 'f', 4));
-            d->colorSpaceSelector->lblXYZ_R->setText(QString::number(colorants[0], 'f', 4) + ", " + QString::number(colorants[1], 'f', 4) + ", " + QString::number(colorants[2], 'f', 4));
-            d->colorSpaceSelector->lblXYZ_G->setText(QString::number(colorants[3], 'f', 4) + ", " + QString::number(colorants[4], 'f', 4) + ", " + QString::number(colorants[5], 'f', 4));
-            d->colorSpaceSelector->lblXYZ_B->setText(QString::number(colorants[6], 'f', 4) + ", " + QString::number(colorants[7], 'f', 4) + ", " + QString::number(colorants[8], 'f', 4));
-            d->colorSpaceSelector->lblXYZ_R->setToolTip(whatIsColorant);
-            d->colorSpaceSelector->lblXYZ_G->setToolTip(whatIsColorant);
-            d->colorSpaceSelector->lblXYZ_B->setToolTip(whatIsColorant);
+            d->colorSpaceSelector->TongueWidget->setToolTip("<html><head/><body><table><tr><th colspan='4'>"+i18nc("@info:tooltip","This profile has the following xyY colorants:")+"</th></tr><tr><td>"+
+               i18n("Red:")  +"</td><td>"+QString::number(colorants[0], 'f', 4) + "</td><td>" + QString::number(colorants[1], 'f', 4) + "</td><td>" + QString::number(colorants[2], 'f', 4)+"</td></tr><tr><td>"+
+               i18n("Green:")+"</td><td>"+QString::number(colorants[3], 'f', 4) + "</td><td>" + QString::number(colorants[4], 'f', 4) + "</td><td>" + QString::number(colorants[5], 'f', 4)+"</th></tr><tr><td>"+
+               i18n("Blue:") +"</td><td>"+QString::number(colorants[6], 'f', 4) + "</td><td>" + QString::number(colorants[7], 'f', 4) + "</td><td>" + QString::number(colorants[8], 'f', 4)+"</th></tr></table></body></html>");
         } else {
             QVector <double> whitepoint2 = currentColorSpace()->profile()->getWhitePointxyY();
             d->colorSpaceSelector->lblXYZ_W->setText(nameWhitePoint(whitepoint2));
             d->colorSpaceSelector->lblXYZ_W->setToolTip(QString::number(whitepoint2[0], 'f', 4) + ", " + QString::number(whitepoint2[1], 'f', 4) + ", " + QString::number(whitepoint2[2], 'f', 4));
-            d->colorSpaceSelector->lblXYZ_R->setText(notApplicable);
-            d->colorSpaceSelector->lblXYZ_R->setToolTip(notApplicableTooltip);
-            d->colorSpaceSelector->lblXYZ_G->setText(notApplicable);
-            d->colorSpaceSelector->lblXYZ_G->setToolTip(notApplicableTooltip);
-            d->colorSpaceSelector->lblXYZ_B->setText(notApplicable);
-            d->colorSpaceSelector->lblXYZ_B->setToolTip(notApplicableTooltip);
+            d->colorSpaceSelector->TongueWidget->setToolTip(notApplicableTooltip);
         }
     } else {
         d->colorSpaceSelector->lblXYZ_W->setText(notApplicable);
         d->colorSpaceSelector->lblXYZ_W->setToolTip(notApplicableTooltip);
-        d->colorSpaceSelector->lblXYZ_R->setText(notApplicable);
-        d->colorSpaceSelector->lblXYZ_R->setToolTip(notApplicableTooltip);
-        d->colorSpaceSelector->lblXYZ_G->setText(notApplicable);
-        d->colorSpaceSelector->lblXYZ_G->setToolTip(notApplicableTooltip);
-        d->colorSpaceSelector->lblXYZ_B->setText(notApplicable);
-        d->colorSpaceSelector->lblXYZ_B->setToolTip(notApplicableTooltip);
+        d->colorSpaceSelector->TongueWidget->setToolTip(notApplicableTooltip);
     }
 
     //set TRC
@@ -236,11 +224,9 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
 
         if (estimatedTRC[0] == -1) {
-            d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB+estimatedCurve);
-            d->colorSpaceSelector->lbltrc->setText(estimatedsRGB);
+            d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+whatissRGB+"<br />"+estimatedCurve+"</body></html>");
         } else {
-            d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0]) + "," + QString::number(estimatedTRC[1]) + "," + QString::number(estimatedTRC[2])+estimatedCurve);
-            d->colorSpaceSelector->lbltrc->setText(estimatedGamma + QString::number((estimatedTRC[0] + estimatedTRC[1] + estimatedTRC[2])/3));
+            d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+estimatedGamma + QString::number(estimatedTRC[0]) + "," + QString::number(estimatedTRC[1]) + "," + QString::number(estimatedTRC[2])+"<br />"+estimatedCurve+"</body></html>");
         }
     }
     else if (currentModelStr == "GRAYA") {
@@ -263,11 +249,9 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
         d->colorSpaceSelector->TRCwidget->setGreyscaleCurve(tonecurve);
         if (estimatedTRC[0] == -1) {
-            d->colorSpaceSelector->lbltrc->setToolTip(whatissRGB+estimatedCurve);
-            d->colorSpaceSelector->lbltrc->setText(estimatedsRGB);
+            d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+whatissRGB+"<br />"+estimatedCurve+"</body></html>");
         } else {
-            d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0])+estimatedCurve);
-            d->colorSpaceSelector->lbltrc->setText(estimatedGamma + QString::number(estimatedTRC[0]));
+            d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+estimatedGamma + QString::number(estimatedTRC[0])+"<br />"+estimatedCurve+"</body></html>");
         }
     }
     else if (currentModelStr == "CMYKA") {
@@ -288,8 +272,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         } else {
             d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
         }
-        d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for CMYK."));
-        d->colorSpaceSelector->lbltrc->setText(estimatedGamma + notApplicable);
+        d->colorSpaceSelector->TRCwidget->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for CMYK."));
     }
     else if (currentModelStr == "XYZA") {
         QString estimatedCurve = " Estimated curve: ";
@@ -310,8 +293,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setXYZData(whitepoint);
-        d->colorSpaceSelector->lbltrc->setToolTip(estimatedGamma + QString::number(estimatedTRC[0])+estimatedCurve);
-        d->colorSpaceSelector->lbltrc->setText(estimatedGamma + i18nc("@info:tooltip"," XYZ is assumed to be linear Gamma."));
+        d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+estimatedGamma + QString::number(estimatedTRC[0])+"< br />"+estimatedCurve+"</body></html>");
     }
     else if (currentModelStr == "LABA") {
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
@@ -332,8 +314,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setLABData(whitepoint);
-        d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","This is assumed to be the L * TRC. ")+estimatedCurve);
-        d->colorSpaceSelector->lbltrc->setText(estimatedGamma + "L*");
+        d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+i18nc("@info:tooltip","This is assumed to be the L * TRC. ")+"<br />"+estimatedCurve+"</body></html>");
     }
     else if (currentModelStr == "YCbCrA") {
         QVector <double> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
@@ -353,8 +334,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         } else {
             d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
         }
-        d->colorSpaceSelector->lbltrc->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for YCrCb."));
-        d->colorSpaceSelector->lbltrc->setText(estimatedGamma + notApplicable);
+        d->colorSpaceSelector->TRCwidget->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for YCrCb."));
     }
 
     d->colorSpaceSelector->textProfileDescription->clear();
@@ -515,7 +495,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         if (profileName.contains("CIERGB-")) {
 
             d->colorSpaceSelector->textProfileDescription->append(i18nc("From Elle's notes.",
-                                                                        "This profile is included mostly for its historical significance. "
+                                                                        "<p>This profile is included mostly for its historical significance. "
                                                                         "It's the color space that was used in the original color matching experiments "
                                                                         "that led to the creation of the XYZ reference color space.<p>"
                                                                         "The ASTM E white point "
@@ -528,7 +508,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         if (profileName.contains("IdentityRGB-")) {
 
             d->colorSpaceSelector->textProfileDescription->append(i18nc("From Elle's notes.",
-                                                                        "The IdentityRGB working space is included in the profile pack because it's a mathematically "
+                                                                        "<p>The IdentityRGB working space is included in the profile pack because it's a mathematically "
                                                                         "obvious way to include all possible visible colors, though it has a higher percentage of "
                                                                         "imaginary colors than the ACES and AllColorsRGB color spaces. I cannot think of any reason "
                                                                         "why you'd ever want to actually edit images in the IdentityRGB working space."));
@@ -536,7 +516,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         if (profileName.contains("LargeRGB-")) {
 
             d->colorSpaceSelector->textProfileDescription->append(i18nc("From Elle's notes.",
-                                                                        "To avoid possible copyright infringement issues, I used 'LargeRGB' (following RawTherapee) "
+                                                                        "<p>To avoid possible copyright infringement issues, I used 'LargeRGB' (following RawTherapee) "
                                                                         "as the base name for these profiles.<p>"
                                                                         "Kodak designed the RIMM/ROMM (ProPhotoRGB) color "
                                                                         "gamut to include all printable and most real world colors. It includes some imaginary colors "
@@ -552,7 +532,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         if (profileName.contains("Rec2020-")) {
 
             d->colorSpaceSelector->textProfileDescription->append(i18nc("From Elle's notes.",
-                                                                        "Rec.2020 is the up-and-coming replacement for the thoroughly outdated sRGB color space. As of "
+                                                                        "<p>Rec.2020 is the up-and-coming replacement for the thoroughly outdated sRGB color space. As of "
                                                                         "June 2015, very few (if any) display devices (and certainly no affordable display devices) can "
                                                                         "display all of Rec.2020. However, display technology is closing in on Rec.2020, movies are "
                                                                         "already being made for Rec.2020, and various cameras offer support for Rec.2020. And in the "
