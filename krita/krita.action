@@ -285,7 +285,7 @@
       <activationConditions>0</activationConditions>
       <shortcut></shortcut>
       <defaultShortcut></defaultShortcut>
-      <isCheckable>false</isCheckable>
+      <isCheckable>true</isCheckable>
       <statusTip></statusTip>
     </Action>
     <Action name="make_brush_color_lighter">
@@ -462,7 +462,7 @@
       <activationFlags>10000</activationFlags>
       <shortcut></shortcut>
       <defaultShortcut></defaultShortcut>
-      <isCheckable>false</isCheckable>
+      <isCheckable>true</isCheckable>
       <statusTip></statusTip>
     </Action>
     <Action name="hmirror_action">
@@ -486,7 +486,7 @@
       <activationFlags>10000</activationFlags>
       <shortcut></shortcut>
       <defaultShortcut></defaultShortcut>
-      <isCheckable>false</isCheckable>
+      <isCheckable>true</isCheckable>
       <statusTip></statusTip>
     </Action>
     <Action name="brushslider3">
@@ -2550,7 +2550,7 @@
       <statusTip></statusTip>
     </Action>
     <Action name="remove_layer">
-      <icon></icon>
+      <icon>deletelayer</icon>
       <text>&amp;Remove Layer</text>
       <whatsThis></whatsThis>
       <toolTip>Remove Layer</toolTip>
@@ -2589,7 +2589,7 @@
       <statusTip></statusTip>
     </Action>
     <Action name="layer_properties">
-      <icon></icon>
+      <icon>properties</icon>
       <text>&amp;Properties...</text>
       <whatsThis></whatsThis>
       <toolTip>Properties</toolTip>
@@ -2624,7 +2624,7 @@
       <activationConditions>0</activationConditions>
       <shortcut></shortcut>
       <defaultShortcut></defaultShortcut>
-      <isCheckable>false</isCheckable>
+      <isCheckable>true</isCheckable>
       <statusTip></statusTip>
     </Action>
   </Actions>
