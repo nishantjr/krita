@@ -494,22 +494,17 @@ public:
     virtual void toYUV(QVector <double> channelValues, qreal *y, qreal *u, qreal *v) const = 0;
     virtual QVector <double> fromYUV(qreal *y, qreal *u, qreal *v) const = 0;
     /**
-     * Create a mathematical toolbox compatible with this colorspace
+     * Compose two arrays of pixels together. If source and target
+     * are not the same color model, the source pixels will be
+     * converted to the target model. We're "dst" -- "dst" pixels are always in _this_
+     * colorspace.
+     *
+     * @param srcSpace the colorspace of the source pixels that will be composited onto "us"
+     * @param param the information needed for blitting e.g. the source and destination pixel data,
+     *        the opacity and flow, ...
+     * @param op the composition operator to use, e.g. COPY_OVER
+     *
      */
-    virtual KoID mathToolboxId() const = 0;
-
-    /**
-    * Compose two arrays of pixels together. If source and target
-    * are not the same color model, the source pixels will be
-    * converted to the target model. We're "dst" -- "dst" pixels are always in _this_
-    * colorspace.
-    *
-    * @param srcSpace the colorspace of the source pixels that will be composited onto "us"
-    * @param param the information needed for blitting e.g. the source and destination pixel data,
-    *        the opacity and flow, ...
-    * @param op the composition operator to use, e.g. COPY_OVER
-    *
-    */
     virtual void bitBlt(const KoColorSpace* srcSpace, const KoCompositeOp::ParameterInfo& params, const KoCompositeOp* op,
                         KoColorConversionTransformation::Intent renderingIntent,
                         KoColorConversionTransformation::ConversionFlags conversionFlags) const;

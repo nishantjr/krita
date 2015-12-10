@@ -156,6 +156,9 @@ KisPart::KisPart()
 
     connect(this, SIGNAL(documentClosed(QString)),
             this, SLOT(updateIdleWatcherConnections()));
+
+    connect(KisActionRegistry::instance(), SIGNAL(shortcutsUpdated()),
+            this, SLOT(updateShortcuts()));
 #ifdef HAVE_OPENGL
     connect(&d->idleWatcher, SIGNAL(startedIdleMode()),
             &d->animationCachePopulator, SLOT(slotRequestRegeneration()));
@@ -428,9 +431,12 @@ void KisPart::configureShortcuts()
     d->loadActions();
 
     auto actionRegistry = KisActionRegistry::instance();
-    actionRegistry->configureShortcuts(d->actionCollection);
+    actionRegistry->configureShortcuts();
+}
 
-    // Update the non-UI actions.  That includes:
+void KisPart::updateShortcuts()
+{
+    // Update any non-UI actionCollections.  That includes:
     //  - Shortcuts called inside of tools
     //  - Perhaps other things?
     KoToolManager::instance()->updateToolShortcuts();
@@ -451,9 +457,9 @@ void KisPart::configureShortcuts()
 
             // Now update the tooltips with the new shortcut info.
             if(action->shortcut() == QKeySequence(0))
-                 action->setToolTip(strippedTooltip);
+                action->setToolTip(strippedTooltip);
             else
-                 action->setToolTip( strippedTooltip + " (" + action->shortcut().toString() + ")");
+                action->setToolTip( strippedTooltip + " (" + action->shortcut().toString() + ")");
         }
     }
 }
