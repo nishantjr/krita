@@ -84,16 +84,6 @@ KisColorSmudgeOp::KisColorSmudgeOp(const KisBrushBasedPaintOpSettings* settings,
     m_colorRatePainter->setCompositeOp(painter->compositeOp()->id());
 
     m_rotationOption.applyFanCornersInfo(this);
-
-    /**
-     * Disable handling of the subpixel precision. In the smudge op we
-     * should read from the aligned areas of the image, so having
-     * additional internal offsets, created by the subpixel precision,
-     * will worsen the quality (at least because
-     * QRectF(m_dstDabRect).center() will not point to the real center
-     * of the brush anymore).
-     */
-    m_dabCache->disableSubpixelPrecision();
 }
 
 KisColorSmudgeOp::~KisColorSmudgeOp()
@@ -137,6 +127,20 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
     // Simple error catching
     if (!painter()->device() || !brush || !brush->canPaintFor(info)) {
         return KisSpacingInformation(1.0);
+    }
+
+    if (m_smudgeRateOption.getMode() == KisSmudgeOption::SMEARING_MODE) {
+        /**
+        * Disable handling of the subpixel precision. In the smudge op we
+        * should read from the aligned areas of the image, so having
+        * additional internal offsets, created by the subpixel precision,
+        * will worsen the quality (at least because
+        * QRectF(m_dstDabRect).center() will not point to the real center
+        * of the brush anymore).
+        * Of course, this only really matters with smearing_mode (bug:327235),
+        * and you only notice the lack of subpixel precision in the dulling methods.
+        */
+        m_dabCache->disableSubpixelPrecision();
     }
     
     //if precision
