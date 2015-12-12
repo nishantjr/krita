@@ -266,20 +266,20 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             smudgeColor.convertTo(paintColor.colorSpace());
             
             int channelnumber = abs(paintColor.colorSpace()->channelCount());
-            QVector <double> channelValues(channelnumber);
+            QVector <qreal> channelValues(channelnumber);
             QVector <float> channelValuesF(channelnumber);
             paintColor.colorSpace()->normalisedChannelsValue(smudgeColor.data(), channelValuesF);
             for (int i=0;i<channelnumber;i++){
                 channelValues[i]=channelValuesF[i];
             }
-            paintColor.colorSpace()->profile()->LinearizeFloatValue(channelValues);
+            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
             qreal Sy, Su, Sv = 0.0;
             paintColor.colorSpace()->toYUV(channelValues, &Sy, &Su, &Sv);
             smudgeColor.colorSpace()->normalisedChannelsValue(paintColor.data(), channelValuesF);
             for (int i=0;i<channelnumber;i++){
                 channelValues[i]=channelValuesF[i];
             }
-            paintColor.colorSpace()->profile()->LinearizeFloatValue(channelValues);
+            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
             qreal Py, Pu, Pv = 0.0;
             paintColor.colorSpace()->toYUV(channelValues, &Py, &Pu, &Pv);
             
@@ -308,7 +308,7 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
                 Fy = pow(Fy, 2.2);
             }
             channelValues = paintColor.colorSpace()->fromYUV(&Fy, &Fu, &Fv);
-            paintColor.colorSpace()->profile()->DelinearizeFloatValue(channelValues);
+            paintColor.colorSpace()->profile()->delinearizeFloatValue(channelValues);
             for (int i=0;i<channelnumber;i++){
                 channelValuesF[i]=channelValues[i];
                 if (paintColor.colorSpace()->colorDepthId().id() == "U16") {
@@ -351,14 +351,14 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
             for (int i=0;i<channelnumber;i++){
                 channelValues[i]=channelValuesF[i];
             }
-            paintColor.colorSpace()->profile()->LinearizeFloatValue(channelValues);
+            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
             qreal Sh, Ss, Sy = 0.0;
             paintColor.colorSpace()->toHSY(channelValues, &Sh, &Ss, &Sy);
             smudgeColor.colorSpace()->normalisedChannelsValue(paintColor.data(), channelValuesF);
             for (int i=0;i<channelnumber;i++){
                 channelValues[i]=channelValuesF[i];
             }
-            paintColor.colorSpace()->profile()->LinearizeFloatValue(channelValues);
+            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
             qreal Ph, Ps, Py = 0.0;
             paintColor.colorSpace()->toHSY(channelValues, &Ph, &Ps, &Py);
             
@@ -413,7 +413,7 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
                 Fy = pow(Fy, 2.2);
             }
             channelValues = paintColor.colorSpace()->fromHSY(&Fh, &Fs, &Fy);
-            paintColor.colorSpace()->profile()->DelinearizeFloatValue(channelValues);
+            paintColor.colorSpace()->profile()->delinearizeFloatValue(channelValues);
             for (int i=0;i<channelnumber;i++){
                 channelValuesF[i]=channelValues[i];
                 if (paintColor.colorSpace()->colorDepthId().id() == "U16") {
