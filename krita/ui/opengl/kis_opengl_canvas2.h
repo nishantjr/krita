@@ -27,15 +27,12 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 
-#include <KoCanvasBase.h>
-
 #include "canvas/kis_canvas_widget_base.h"
 #include "opengl/kis_opengl_image_textures.h"
 
 #include "kritaui_export.h"
 #include "kis_ui_types.h"
 
-class QWidget;
 class KisCanvas2;
 class KisDisplayColorConverter;
 class QOpenGLShaderProgram;
@@ -76,13 +73,13 @@ public:
     void renderDecorations(QPainter *painter);
     void paintToolOutline(const QPainterPath &path);
 
+    bool needsFpsDebugging() const;
 
 public: // Implement kis_abstract_canvas_widget interface
     void setDisplayFilter(KisDisplayFilter* displayFilter);
     void setWrapAroundViewingMode(bool value);
     void channelSelectionChanged(const QBitArray &channelFlags);
     void setDisplayProfile(KisDisplayColorConverter *colorConverter);
-    void disconnectCurrentCanvas();
     void finishResizingImage(qint32 w, qint32 h);
     KisUpdateInfoSP startUpdateCanvasProjection(const QRect & rc, const QBitArray &channelFlags);
     QRect updateCanvasProjection(KisUpdateInfoSP info);

@@ -83,15 +83,18 @@ private:
 
 void TimelineDocker::setCanvas(KoCanvasBase * canvas)
 {
-    if (m_d->canvas == canvas) return;
+    if (canvas && m_d->canvas == canvas) return;
 
-    if (m_d->canvas) {
+    if (m_d->model->hasConnectionToCanvas()) {
         m_d->canvasConnections.clear();
         m_d->model->setDummiesFacade(0, 0);
         m_d->model->setFrameCache(0);
         m_d->model->setAnimationPlayer(0);
         m_d->model->setNodeManipulationInterface(0);
-        m_d->canvas->disconnectCanvasObserver(this);
+
+        if (m_d->canvas) {
+            m_d->canvas->disconnectCanvasObserver(this);
+        }
     }
 
     m_d->canvas = dynamic_cast<KisCanvas2*>(canvas);
@@ -126,9 +129,16 @@ void TimelineDocker::unsetCanvas()
 
 void TimelineDocker::setMainWindow(KisViewManager *view)
 {
-    Q_UNUSED(view);
-    //KisActionManager *actionManager = view->actionManager();
-    //actionManager->addAction("toggle_onion_skin", m_toggleOnionSkinAction);
+    KisActionManager *actionManager = view->actionManager();
+
+    QMap<QString, KisAction*> actions = m_d->view->globalActions();
+
+    QMap<QString, KisAction*>::iterator it = actions.begin();
+    QMap<QString, KisAction*>::iterator end = actions.end();
+
+    for (; it != end; ++it) {
+        actionManager->addAction(it.key(), it.value());
+    }
 }
 
 #include "timeline_docker.moc"

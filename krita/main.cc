@@ -47,6 +47,7 @@
 
 #elif defined HAVE_X11
     #include <ui/input/wintab/kis_tablet_support_x11.h>
+    #include <ui/input/wintab/kis_xi2_event_filter.h>
 #endif
 
 #if defined HAVE_KCRASH
@@ -98,6 +99,12 @@ extern "C" int main(int argc, char **argv)
     QCoreApplication::addLibraryPath(QCoreApplication::applicationDirPath());
     // first create the application so we can create a pixmap
     KisApplication app(key, argc, argv);
+
+    if (qApp->applicationDirPath().contains(KRITA_BUILD_DIR)) {
+        qFatal("FATAL: You're trying to run krita from the build location. You can only run Krita from the installation location.");
+    }
+
+
 #if defined HAVE_KCRASH
     KCrash::initialize();
 #endif
@@ -126,6 +133,10 @@ extern "C" int main(int argc, char **argv)
         // Icons in menus are ugly and distracting
         app.setAttribute(Qt::AA_DontShowIconsInMenus);
     }
+
+#if defined HAVE_X11
+    app.installNativeEventFilter(KisXi2EventFilter::instance());
+#endif
 
     // then create the pixmap from an xpm: we cannot get the
     // location of our datadir before we've started our components,
@@ -158,7 +169,6 @@ extern "C" int main(int argc, char **argv)
 
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)),
                      &app, SLOT(fileOpenRequested(QString)));
-
 
     int state = app.exec();
 

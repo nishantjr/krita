@@ -7,24 +7,40 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 set(MIN_QT_VERSION 5.4.0)
 set(MIN_FRAMEWORKS_VERSION 5.7.0)
 
-cmake_policy(SET CMP0002 OLD)
-#cmake_policy CMP0017 was introduced in version 2.8.4
-if (NOT ${CMAKE_VERSION} VERSION_LESS 2.8.3)
+if (POLICY CMP0002)
+    cmake_policy(SET CMP0002 OLD)
+endif()
+
+if (POLICY CMP0017)
     cmake_policy(SET CMP0017 NEW)
 endif ()
 
-if (NOT ${CMAKE_VERSION} VERSION_LESS 2.8.12)
+if (POLICY CMP0022)
     cmake_policy(SET CMP0022 OLD)
 endif ()
 
-if (NOT ${CMAKE_VERSION} VERSION_LESS 3.0.0)
+if (POLICY CMP0026)
     cmake_policy(SET CMP0026 OLD)
+endif()
+
+if (POLICY CMP0046)
     cmake_policy(SET CMP0046 OLD)
 endif ()
 
-if(NOT ${CMAKE_VERSION} VERSION_LESS 3.3.0)
+if (POLICY CMP0059)
     cmake_policy(SET CMP0059 OLD)
+endif()
+
+if (POLICY CMP0063)
     cmake_policy(SET CMP0063 OLD)
+endif()
+
+if (POLICY CMP0054)
+    cmake_policy(SET CMP0054 OLD)
+endif()
+
+if (POLICY CMP0064)
+    cmake_policy(SET CMP0064 OLD)
 endif()
 
 set(APPLE_SUPPRESS_X11_WARNING TRUE)
@@ -259,6 +275,13 @@ if(X11_FOUND)
     add_definitions(-DHAVE_X11)
 else()
     set(HAVE_X11 FALSE)
+endif()
+
+find_package(XCB COMPONENTS XCB ATOM)
+if(XCB_FOUND)
+  set(HAVE_XCB TRUE)
+else()
+  set(HAVE_XCB FALSE)
 endif()
 
 # use sane compile flags

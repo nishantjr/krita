@@ -20,7 +20,6 @@
 
 #ifdef HAVE_OPENGL
 #include <QOpenGLContext>
-#include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #endif
 
@@ -28,7 +27,6 @@
 #include <QDir>
 #include <QFile>
 #include <QDesktopServices>
-#include <QMessageBox>
 
 #include <klocalizedstring.h>
 
@@ -111,12 +109,6 @@ bool KisOpenGL::supportsFenceSync()
 {
     // return glVersion > 302;
     return true;
-}
-
-bool KisOpenGL::supportsGLSL13()
-{
-    // return glVersion > 300;
-    return true; // QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_3_0; -- we force 3.2 for now, since that has glFenceSync
 }
 
 bool KisOpenGL::needsFenceWorkaround()
