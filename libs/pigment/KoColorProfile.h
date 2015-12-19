@@ -95,6 +95,10 @@ public:
     void setFileName(const QString &filename);
 
     /**
+     * Return version
+     */
+    virtual float version() const = 0;
+    /**
      * @return true if you can use this profile can be used to convert color from a different
      * profile to this one
      */
@@ -108,6 +112,13 @@ public:
      */
     virtual bool isSuitableForDisplay() const = 0;
 
+    /**
+     * @return which rendering intents are supported
+     */
+    virtual bool supportsPerceptual() const = 0;
+    virtual bool supportsSaturation() const = 0;
+    virtual bool supportsAbsolute() const = 0;
+    virtual bool supportsRelative() const = 0;
     /**
      * @return if the profile has colorants.
      */

@@ -37,7 +37,10 @@ bool KoDummyColorProfile::valid() const
 {
     return true;
 }
-
+float KoDummyColorProfile::version() const
+{
+    return 0.0;
+}
 bool KoDummyColorProfile::isSuitableForOutput() const
 {
     return true;
@@ -49,6 +52,22 @@ bool KoDummyColorProfile::isSuitableForPrinting() const
 }
 
 bool KoDummyColorProfile::isSuitableForDisplay() const
+{
+    return true;
+}
+bool KoDummyColorProfile::supportsPerceptual() const
+{
+    return true;
+}
+bool KoDummyColorProfile::supportsSaturation() const
+{
+    return true;
+}
+bool KoDummyColorProfile::supportsAbsolute() const
+{
+    return true;
+}
+bool KoDummyColorProfile::supportsRelative() const
 {
     return true;
 }

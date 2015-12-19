@@ -74,12 +74,19 @@ public:
     cmsHPROFILE lcmsProfile() const;
 
     virtual bool valid() const;
+    virtual float version() const;
 
     virtual bool isSuitableForOutput() const;
 
     virtual bool isSuitableForPrinting() const;
 
     virtual bool isSuitableForDisplay() const;
+
+    virtual bool supportsPerceptual() const;
+    virtual bool supportsSaturation() const;
+    virtual bool supportsAbsolute() const;
+    virtual bool supportsRelative() const;
+
     virtual bool hasColorants() const;
     virtual bool hasTRC() const;
     virtual QVector <double> getColorantsXYZ() const;

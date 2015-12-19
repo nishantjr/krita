@@ -127,7 +127,13 @@ bool IccColorProfile::valid() const
     }
     return false;
 }
-
+float IccColorProfile::version() const
+{
+    if (d->shared->lcmsProfile) {
+        return d->shared->lcmsProfile->version();
+    }
+    return 0.0;
+}
 bool IccColorProfile::isSuitableForOutput() const
 {
     if (d->shared->lcmsProfile) {
@@ -148,6 +154,35 @@ bool IccColorProfile::isSuitableForDisplay() const
 {
     if (d->shared->lcmsProfile) {
         return d->shared->lcmsProfile->isSuitableForDisplay();
+    }
+    return false;
+}
+
+bool IccColorProfile::supportsPerceptual() const
+{
+    if (d->shared->lcmsProfile) {
+        return d->shared->lcmsProfile->supportsPerceptual();
+    }
+    return false;
+}
+bool IccColorProfile::supportsSaturation() const
+{
+    if (d->shared->lcmsProfile) {
+        return d->shared->lcmsProfile->supportsSaturation();
+    }
+    return false;
+}
+bool IccColorProfile::supportsAbsolute() const
+{
+    if (d->shared->lcmsProfile) {
+        return d->shared->lcmsProfile->supportsAbsolute();
+    }
+    return false;
+}
+bool IccColorProfile::supportsRelative() const
+{
+    if (d->shared->lcmsProfile) {
+        return d->shared->lcmsProfile->supportsRelative();
     }
     return false;
 }

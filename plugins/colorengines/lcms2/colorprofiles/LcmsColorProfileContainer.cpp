@@ -44,6 +44,7 @@ public:
     QString productDescription;
     QString manufacturer;
     QString name;
+    float version;
     IccColorProfile::Data *data;
     bool valid;
     bool suitableForOutput;
@@ -62,6 +63,13 @@ public:
     cmsToneCurve *greenTRCReverse;
     cmsToneCurve *blueTRCReverse;
     cmsToneCurve *grayTRCReverse;
+    
+    cmsUInt32Number defaultIntent;
+    bool isPerceptualCLUT;
+    bool isRelativeCLUT;
+    bool isAbsoluteCLUT;
+    bool isSaturationCLUT;
+    bool isMatrixShaper;
 };
 
 LcmsColorProfileContainer::LcmsColorProfileContainer()
@@ -214,6 +222,15 @@ bool LcmsColorProfileContainer::init()
         d->suitableForOutput = cmsIsMatrixShaper(d->profile)
                                || (cmsIsCLUT(d->profile, INTENT_PERCEPTUAL, LCMS_USED_AS_INPUT) &&
                                    cmsIsCLUT(d->profile, INTENT_PERCEPTUAL, LCMS_USED_AS_OUTPUT));
+
+        d->version = cmsGetProfileVersion(d->profile);
+        d->defaultIntent = cmsGetHeaderRenderingIntent(d->profile);
+        d->isMatrixShaper = cmsIsMatrixShaper(d->profile);
+        d->isPerceptualCLUT = cmsIsCLUT(d->profile, INTENT_PERCEPTUAL, LCMS_USED_AS_INPUT);
+        d->isSaturationCLUT = cmsIsCLUT(d->profile, INTENT_SATURATION, LCMS_USED_AS_INPUT);
+        d->isAbsoluteCLUT = cmsIsCLUT(d->profile, INTENT_SATURATION, LCMS_USED_AS_INPUT);
+        d->isRelativeCLUT = cmsIsCLUT(d->profile, INTENT_RELATIVE_COLORIMETRIC, LCMS_USED_AS_INPUT);
+
         return true;
     }
 
@@ -245,6 +262,11 @@ bool LcmsColorProfileContainer::valid() const
     return d->valid;
 }
 
+float LcmsColorProfileContainer::version() const
+{
+    return d->version;
+}
+
 bool LcmsColorProfileContainer::isSuitableForOutput() const
 {
     return d->suitableForOutput;
@@ -258,6 +280,26 @@ bool LcmsColorProfileContainer::isSuitableForPrinting() const
 bool LcmsColorProfileContainer::isSuitableForDisplay() const
 {
     return deviceClass() == cmsSigDisplayClass;
+}
+
+bool LcmsColorProfileContainer::supportsPerceptual() const
+{
+    return d->isPerceptualCLUT;
+}
+bool LcmsColorProfileContainer::supportsSaturation() const
+{
+    return d->isSaturationCLUT;
+}
+bool LcmsColorProfileContainer::supportsAbsolute() const
+{
+    return d->isAbsoluteCLUT;//LCMS2 doesn't convert matrix shapers via absolute intent, because of V4 workflow.
+}
+bool LcmsColorProfileContainer::supportsRelative() const
+{
+    if (d->isRelativeCLUT || d->isMatrixShaper){
+        return true;
+    }
+    return false;
 }
 bool LcmsColorProfileContainer::hasColorants() const
 {
