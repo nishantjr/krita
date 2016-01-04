@@ -51,9 +51,6 @@ endif()
 if (APPLE)
     set(APPLE_SUPPRESS_X11_WARNING TRUE)
     set(CMAKE_MACOSX_RPATH ON)
-    SET(CMAKE_SKIP_BUILD_RPATH TRUE)
-    SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
 # QT5TODO: remove KDE4_BUILD_TESTS once all kde4_add_unit_test have been converted
@@ -324,7 +321,7 @@ if(WIN32)
 endif()
 
 # set custom krita plugin installdir
-set(CALLIGRA_PLUGIN_INSTALL_DIR ${LIB_INSTALL_DIR}/krita)
+set(CALLIGRA_PLUGIN_INSTALL_DIR ${LIB_INSTALL_DIR}/kritaplugins)
 
  ###########################
 ############################
@@ -461,7 +458,11 @@ if(HAVE_VC)
     if(Vc_COMPILER_IS_CLANG)
         set(ADDITIONAL_VC_FLAGS "-Wabi -ffp-contract=fast")
     else()
-        set(ADDITIONAL_VC_FLAGS "-Wabi -fabi-version=0 -ffp-contract=fast")
+        if (MSVC)
+            set(ADDITIONAL_VC_FLAGS "-fabi-version=0 -ffp-contract=fast")
+        else()
+            set(ADDITIONAL_VC_FLAGS "-Wabi -fabi-version=0 -ffp-contract=fast")
+        endif()
     endif()
 
     #Handle Vc master

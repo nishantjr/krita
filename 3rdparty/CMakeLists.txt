@@ -32,17 +32,12 @@ set(TOP_INST_DIR ${INSTALL_ROOT})
 set(EXTPREFIX "${TOP_INST_DIR}")
 set(CMAKE_PREFIX_PATH "${EXTPREFIX}")
 
-if (MSCV)
-    message("WIN64_BUILD" ${WIN64_BUILD})
-endif()
-
-if (WIN64_BUILD  STREQUAL "TRUE")
+if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 14 2015 Win64")
     SET(GLOBAL_PROFILE 
         -DCMAKE_MODULE_LINKER_FLAGS=/machine:x64 
         -DCMAKE_EXE_LINKER_FLAGS=/machine:x64 
         -DCMAKE_SHARED_LINKER_FLAGS=/machine:x64 
         -DCMAKE_STATIC_LINKER_FLAGS=/machine:x64 
-        -DCMAKE_RC_COMPILER = "C:/Program Files (x86)/Windows Kits/8.0/bin/x64/rc.exe"  
     )
 endif ()
 
@@ -50,7 +45,7 @@ message( STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 message( STATUS "CMAKE_CL_64: ${CMAKE_CL_64}")
 
 set(GLOBAL_BUILD_TYPE RelWithDebInfo)
-set(GLOBAL_PROFILE -DBUILD_TESTING=false)
+set(GLOBAL_PROFILE ${GLOBAL_PROFILE} -DBUILD_TESTING=false)
 
 if (MSVC)
         set(GLOBAL_PROFILE ${GLOBAL_PROFILE} -DCMAKE_EXE_LINKER_FLAGS=/PROFILE -DCMAKE_SHARED_LINKER_FLAGS=/PROFILE)
@@ -70,12 +65,7 @@ if (MSYS)
 endif() 
 
 if (APPLE)
-    set(GLOBAL_PROFILE -DMACOS_RPATH=ON 
-                       -DCMAKE_MACOSX_RPATH=ON
-                       -DCMAKE_SKIP_BUILD_RPATH=TRUE
-                       -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE
-                       -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
-                       )
+    set(GLOBAL_PROFILE ${GLOBAL_PROFILE} -DCMAKE_MACOSX_RPATH=ON)
     set(PATCH_COMMAND patch)
 endif ()
 

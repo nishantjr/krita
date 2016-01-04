@@ -170,7 +170,7 @@ public:
         }
     }
     void ensureItemHidden(QStatusBar * sb) {
-        if (m_connected) {
+        if (m_connected && m_widget) {
             m_hidden = m_widget->isHidden();
             sb->removeWidget(m_widget);
             m_widget->hide();
@@ -178,7 +178,7 @@ public:
         }
     }
 private:
-    QWidget * m_widget;
+    QPointer<QWidget> m_widget;
     int m_stretch;
     bool m_permanent;
     bool m_connected;
@@ -278,7 +278,7 @@ public:
     QPointer<KisView> currentImageView;
     KisCanvasResourceProvider canvasResourceProvider;
     KoCanvasResourceManager canvasResourceManager;
-    QList<StatusBarItem> statusBarItems;
+    QVector<StatusBarItem> statusBarItems;
     KisSignalCompressor guiUpdateCompressor;
     KActionCollection *actionCollection;
     KisMirrorManager mirrorManager;
@@ -391,7 +391,7 @@ void KisViewManager::setCurrentView(KisView *view)
         d->currentImageView = imageView;
         KisCanvasController *canvasController = dynamic_cast<KisCanvasController*>(d->currentImageView->canvasController());
 
-        d->viewConnections.addUniqueConnection(&d->nodeManager, SIGNAL(sigNodeActivated(KisNodeSP)), doc->image(), SLOT(requestStrokeEnd()));
+        d->viewConnections.addUniqueConnection(&d->nodeManager, SIGNAL(sigNodeActivated(KisNodeSP)), doc->image(), SLOT(requestStrokeEndActiveNode()));
         d->viewConnections.addUniqueConnection(d->rotateCanvasRight, SIGNAL(triggered()), canvasController, SLOT(rotateCanvasRight15()));
         d->viewConnections.addUniqueConnection(d->rotateCanvasLeft, SIGNAL(triggered()),canvasController, SLOT(rotateCanvasLeft15()));
 
@@ -532,17 +532,15 @@ void KisViewManager::removeStatusBarItem(QWidget * widget)
 {
     QStatusBar *sb = mainWindow()->statusBar();
 
-    int itemCount = d->statusBarItems.count();
-    for (int i = itemCount-1; i >= 0; --i) {
-        StatusBarItem &sbItem = d->statusBarItems[i];
+    int i = 0;
+    Q_FOREACH(const StatusBarItem& sbItem, d->statusBarItems) {
         if (sbItem.widget() == widget) {
-            if (sb) {
-                sbItem.ensureItemHidden(sb);
-            }
-            d->statusBarItems.removeOne(sbItem);
             break;
         }
+        i++;
     }
+    d->statusBarItems[i].ensureItemHidden(sb);
+    d->statusBarItems.remove(i);
 }
 
 KisPaintopBox* KisViewManager::paintOpBox() const
