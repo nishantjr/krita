@@ -181,10 +181,12 @@ public:
  
     QPixmap         pixmap;
     QPixmap         cietongue;
+    QPixmap         gamutMap;
     KPixmapSequence progressPix;
  
     QVector <double> Primaries;
     QVector <double> whitePoint;
+    QPolygonF       gamut;
     model colorModel;
 };
 
@@ -198,6 +200,7 @@ KisCIETongueWidget::KisCIETongueWidget(QWidget *parent) :
     d->Primaries.fill(0.0);
     d->whitePoint.resize(3);
     d->whitePoint<<0.34773<<0.35952<<1.0;
+    d->gamut = QPolygonF();
 
     connect(d->progressTimer, SIGNAL(timeout()),
             this, SLOT(slotProgressTimerDone()));
@@ -225,7 +228,10 @@ void KisCIETongueWidget::setProfileData(QVector <double> p, QVector <double> w, 
         return;
     }
 }
-
+void KisCIETongueWidget::setGamut(QPolygonF gamut)
+{
+    d->gamut=gamut;
+}
 void KisCIETongueWidget::setRGBData(QVector <double> whitepoint, QVector <double> colorants)
 {
     if (colorants.size()==9){
@@ -557,6 +563,39 @@ void KisCIETongueWidget::drawWhitePoint()
     drawSmallElipse(QPointF (d->whitePoint[0],d->whitePoint[1]),  255, 255, 255, 8);
 }
 
+void KisCIETongueWidget::drawGamut()
+{
+    d->gamutMap=QPixmap(size());
+    d->gamutMap.fill(Qt::black);
+    QPainter gamutPaint;
+    gamutPaint.begin(&d->gamutMap);
+    QPainterPath path;
+    //gamutPaint.setCompositionMode(QPainter::CompositionMode_Clear);
+    gamutPaint.setRenderHint(QPainter::Antialiasing);
+    gamutPaint.setBrush(Qt::white);
+    gamutPaint.setPen(Qt::white);
+    path.setFillRule(Qt::WindingFill);
+    int x, y = 0;
+    if (!d->gamut.empty()) {
+        foreach (QPointF Point, d->gamut) {
+            mapPoint(x, y, Point);
+            gamutPaint.drawEllipse(x + d->xBias- 2, y-2, 4, 4);
+            //Point.setX(x);
+            //Point.setY(y);
+            //path.lineTo(Point);
+        }
+    }
+    //gamutPaint.drawPath(path);
+    gamutPaint.end();
+    d->painter.save();
+    d->painter.setOpacity(0.5);
+    d->painter.setCompositionMode(QPainter::CompositionMode_Multiply);
+    QRect area(d->xBias, 0, d->pxcols, d->pxrows);
+    d->painter.drawPixmap(area,d->gamutMap, area);
+    d->painter.setOpacity(1.0);
+    d->painter.restore();
+}
+
 void KisCIETongueWidget::updatePixmap()
 {
     d->needUpdatePixmap = false;
@@ -605,6 +644,8 @@ void KisCIETongueWidget::updatePixmap()
     {
         drawColorantTriangle();
     }
+    drawGamut();
+
     d->painter.end();
 }
  

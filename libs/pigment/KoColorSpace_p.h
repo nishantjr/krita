@@ -22,6 +22,7 @@
 
 #include "KoColorSpace.h"
 #include <QThreadStorage>
+#include <QPolygonF>
 
 struct Q_DECL_HIDDEN KoColorSpace::Private {
 
@@ -38,6 +39,8 @@ struct Q_DECL_HIDDEN KoColorSpace::Private {
     mutable KoColorConversionTransformation* transfoFromRGBA16;
     mutable KoColorConversionTransformation* transfoToLABA16;
     mutable KoColorConversionTransformation* transfoFromLABA16;
+    
+    QPolygonF gamutXYY;
 
     Deletability deletability;
 };

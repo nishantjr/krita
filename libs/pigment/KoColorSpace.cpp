@@ -40,6 +40,8 @@
 #include <QThreadStorage>
 #include <QByteArray>
 #include <QBitArray>
+#include <QPolygonF>
+#include <QPointF>
 
 
 KoColorSpace::KoColorSpace()
@@ -59,6 +61,7 @@ KoColorSpace::KoColorSpace(const QString &id, const QString &name, KoMixColorsOp
     d->transfoFromRGBA16 = 0;
     d->transfoToLABA16 = 0;
     d->transfoFromLABA16 = 0;
+    d->gamutXYY = QPolygonF();
     d->deletability = NotOwnedByRegistry;
 }
 
@@ -102,6 +105,76 @@ QString KoColorSpace::name() const
     return d->name;
 }
 
+//Color space info stuff.
+QPolygonF KoColorSpace::gamutXYY() const
+{
+    if (d->gamutXYY.empty()) {
+        //now, let's decide on the boundary. This is a bit tricky because icc profiles can be both matrix-shaper and cLUT at once if the maker so pleases.
+        //first make a list of colors.
+        quint8 data[channelCount()];
+        qreal max = 0;//this doesn't work...
+        if (colorDepthId().id()=="U8"){ max = 255.0;} else
+        if (colorDepthId().id()=="U16"){max = 65535.0;}
+        if (colorDepthId().id()=="F32"||colorDepthId().id()=="F16"){ max = 1.0;} else
+        {max = this->channels()[0]->getUIMax();}
+        int samples = 5;//amount of samples in our color space.
+        QString name = KoColorSpaceRegistry::instance()->colorSpaceFactory("XYZAF16")->defaultProfile();
+        const KoColorSpace* xyzColorSpace = KoColorSpaceRegistry::instance()->colorSpace("XYZA", "F16", name);
+        quint8 data2[4];//xyza is 4.
+        //QVector <qreal> sampleCoordinates(pow(colorChannelCount(),samples));
+        //sampleCoordinates.fill(0.0);
+        QVector <float> channelValuesF(channelCount());//for getting the coordinates.
+        for(int x=0;x<samples;x++){
+            for(int y=0;y<samples;y++){
+                for(int z=0;z<samples;z++){
+                    if (colorChannelCount()==4) {
+                        for(int k=0;k<samples;k++){
+                            data[0]=(max/samples)*(x);
+                            data[1]=(max/samples)*(y);
+                            data[2]=(max/samples)*(z);
+                            data[3]=(max/samples)*(k);
+                            data[4]=max;
+                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
+                            xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                            qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                            qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                            d->gamutXYY<< QPointF(x,y);
+                        }
+                    } else {
+                        data[0]=(max/samples)*(x);
+                        data[1]=(max/samples)*(y);
+                        data[2]=(max/samples)*(z);
+                        data[3]=max;
+                        convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
+                        xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                        qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                        qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                        d->gamutXYY<< QPointF(x,y);
+                    }
+                }
+            }
+        }
+        return d->gamutXYY;
+        //miniversion of the above for colorants here...
+    } else {
+        return d->gamutXYY;
+    }
+}
+/*
+QVector <qreal> colorants()
+{
+    if (d->colorants){
+        return d->colorants;
+    } else {
+        gamutXYY();//make a list of colorants by checking our boundary function.
+        return d->colorants;
+    }
+}
+QVector <qreal> lumaCoefficients()
+{
+    
+}
+*/
 QList<KoChannelInfo *> KoColorSpace::channels() const
 {
     return d->channels;

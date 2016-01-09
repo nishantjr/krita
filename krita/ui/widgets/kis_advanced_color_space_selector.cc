@@ -200,6 +200,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         QVector <qreal> colorants = currentColorSpace()->profile()->getColorantsxyY();
         QVector <qreal> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setRGBData(whitepoint, colorants);
+        d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
         QString estimatedCurve = " Estimated curve: ";
         QPolygonF redcurve;
@@ -257,6 +258,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
     else if (currentModelStr == "CMYKA") {
         QVector <qreal> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setCMYKData(whitepoint);
+        d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         QString estimatedCurve = " Estimated curve: ";
         QPolygonF tonecurve;
         if (currentColorSpace()->profile()->hasTRC()){
@@ -293,6 +295,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
         QVector <qreal> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setXYZData(whitepoint);
+        d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+estimatedGamma + QString::number(estimatedTRC[0])+"< br />"+estimatedCurve+"</body></html>");
     }
     else if (currentModelStr == "LABA") {
@@ -314,6 +317,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         }
         QVector <qreal> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setLABData(whitepoint);
+        d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         d->colorSpaceSelector->TRCwidget->setToolTip("<html><head/><body>"+i18nc("@info:tooltip","This is assumed to be the L * TRC. ")+"<br />"+estimatedCurve+"</body></html>");
     }
     else if (currentModelStr == "YCbCrA") {

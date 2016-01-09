@@ -101,6 +101,12 @@ protected:
     virtual ~KoColorSpace();
 
 public:
+    //========== Gamut and other basic info ===================================//
+    /*
+     * @returns QPolygonF with 5*channel samples converted to xyY.
+     * maybe convert to 3d space in future?
+     */
+    QPolygonF gamutXYY() const;
     //========== Channels =====================================================//
 
     /// Return a list describing all the channels this color model has. The order
