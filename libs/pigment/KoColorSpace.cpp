@@ -131,7 +131,7 @@ QPolygonF KoColorSpace::gamutXYY() const
                             channelValuesF[3]=(max/samples)*(k);
                             channelValuesF[4]=max;
                             fromNormalisedChannelsValue(data, channelValuesF);
-                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
+                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
                             xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
                             qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
                             qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
@@ -144,7 +144,7 @@ QPolygonF KoColorSpace::gamutXYY() const
                         channelValuesF[3]=max;
                         if (colorModelId().id()!="XYZA") { //no need for conversion when using xyz.
                             fromNormalisedChannelsValue(data, channelValuesF);
-                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
+                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
                             xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
                         }
                         qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);

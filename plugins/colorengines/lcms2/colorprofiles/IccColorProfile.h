@@ -62,6 +62,8 @@ public:
     public:
         virtual QString name() const = 0;
         virtual QString info() const = 0;
+        virtual QString manufacturer() const = 0;
+        virtual QString copyright() const = 0;
         virtual bool valid() const = 0;
         virtual bool isSuitableForOutput() const = 0;
         virtual bool isSuitableForPrinting() const = 0;

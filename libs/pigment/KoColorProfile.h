@@ -85,6 +85,13 @@ public:
      * @return the info of this profile
      */
     QString info() const;
+    /** @return manufacturer of the profile
+     */
+    QString manufacturer() const;
+    /**
+     * @return the copyright of the profile
+     */
+    QString copyright() const;
     /**
      * @return the filename of the profile (it might be empty)
      */
@@ -184,6 +191,14 @@ protected:
      * Allows to set the information string of that profile.
      */
     void setInfo(const QString &info);
+    /**
+     * Allows to set the manufacturer string of that profile.
+     */
+    void setManufacturer(const QString &manufacturer);
+    /**
+     * Allows to set the copyright string of that profile.
+     */
+    void setCopyright(const QString &copyright);
 
 private:
     struct Private;

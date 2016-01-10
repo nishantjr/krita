@@ -67,7 +67,10 @@ public:
      * @return the name of the manufacturer
      */
     QString manufacturer() const;
-
+    /**
+     * @return the embedded copyright
+     */
+    QString copyright() const;
     /**
      * @return the structure to use with LCMS functions
      */

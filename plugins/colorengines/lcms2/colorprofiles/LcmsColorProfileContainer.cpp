@@ -43,6 +43,7 @@ public:
     cmsProfileClassSignature deviceClass;
     QString productDescription;
     QString manufacturer;
+    QString copyright;
     QString name;
     float version;
     IccColorProfile::Data *data;
@@ -138,11 +139,15 @@ bool LcmsColorProfileContainer::init()
         cmsGetProfileInfo(d->profile, cmsInfoDescription, cmsNoLanguage, cmsNoCountry, buffer, _BUFFER_SIZE_);
         d->name = QString::fromWCharArray(buffer);
 
+        //apparantly this should give us a localised string??? Not sure about this.
         cmsGetProfileInfo(d->profile, cmsInfoModel, cmsNoLanguage, cmsNoCountry, buffer, _BUFFER_SIZE_);
         d->productDescription = QString::fromWCharArray(buffer);
 
         cmsGetProfileInfo(d->profile, cmsInfoManufacturer, cmsNoLanguage, cmsNoCountry, buffer, _BUFFER_SIZE_);
         d->manufacturer = QString::fromWCharArray(buffer);
+
+        cmsGetProfileInfo(d->profile, cmsInfoCopyright, cmsNoLanguage, cmsNoCountry, buffer, _BUFFER_SIZE_);
+        d->copyright = QString::fromWCharArray(buffer);
 
         cmsProfileClassSignature profile_class;
         profile_class = cmsGetDeviceClass(d->profile);
@@ -255,6 +260,11 @@ cmsProfileClassSignature LcmsColorProfileContainer::deviceClass() const
 QString LcmsColorProfileContainer::manufacturer() const
 {
     return d->manufacturer;
+}
+
+QString LcmsColorProfileContainer::copyright() const
+{
+    return d->copyright;
 }
 
 bool LcmsColorProfileContainer::valid() const

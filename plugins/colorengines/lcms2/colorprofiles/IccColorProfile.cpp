@@ -289,6 +289,8 @@ bool IccColorProfile::init()
     if (d->shared->lcmsProfile->init()) {
         setName(d->shared->lcmsProfile->name());
         setInfo(d->shared->lcmsProfile->info());
+        setManufacturer(d->shared->lcmsProfile->manufacturer());
+        setCopyright(d->shared->lcmsProfile->copyright());
         if (d->shared->lcmsProfile->valid()) {
             calculateFloatUIMinMax();
         }
