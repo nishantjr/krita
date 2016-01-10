@@ -199,7 +199,12 @@ void KisAdvancedColorSpaceSelector::fillDescription()
     else if (currentModelStr == "RGBA") {
         QVector <qreal> colorants = currentColorSpace()->profile()->getColorantsxyY();
         QVector <qreal> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
-        d->colorSpaceSelector->TongueWidget->setRGBData(whitepoint, colorants);
+        if (currentColorSpace()->profile()->hasColorants()){
+            d->colorSpaceSelector->TongueWidget->setRGBData(whitepoint, colorants);
+        } else {
+            colorants.fill(0.0);
+            d->colorSpaceSelector->TongueWidget->setRGBData(whitepoint, colorants);
+        }
         d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
         QString estimatedCurve = " Estimated curve: ";
@@ -233,6 +238,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
     else if (currentModelStr == "GRAYA") {
         QVector <qreal> whitepoint = currentColorSpace()->profile()->getWhitePointxyY();
         d->colorSpaceSelector->TongueWidget->setGrayData(whitepoint);
+        d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         estimatedTRC = currentColorSpace()->profile()->getEstimatedTRC();
         QString estimatedCurve = " Estimated curve: ";
         QPolygonF tonecurve;
@@ -338,6 +344,7 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         } else {
             d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
         }
+        d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         d->colorSpaceSelector->TRCwidget->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for YCrCb."));
     }
 

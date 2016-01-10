@@ -111,51 +111,68 @@ QPolygonF KoColorSpace::gamutXYY() const
     if (d->gamutXYY.empty()) {
         //now, let's decide on the boundary. This is a bit tricky because icc profiles can be both matrix-shaper and cLUT at once if the maker so pleases.
         //first make a list of colors.
-        quint8 data[channelCount()];
         qreal max = 1.0;
+        if ((colorModelId().id()=="CMYKA" || colorModelId().id()=="LABA") && colorDepthId().id()=="F32") {
+            //boundaries for cmyka/laba have trouble getting the max values for Float, and are pretty awkward in general.
+            max=max = this->channels()[0]->getUIMax();
+            
+        }
         int samples = 5;//amount of samples in our color space.
         QString name = KoColorSpaceRegistry::instance()->colorSpaceFactory("XYZAF16")->defaultProfile();
         const KoColorSpace* xyzColorSpace = KoColorSpaceRegistry::instance()->colorSpace("XYZA", "F16", name);
+        quint8 data[channelCount()];
         quint8 data2[4];//xyza is 4.
         //QVector <qreal> sampleCoordinates(pow(colorChannelCount(),samples));
         //sampleCoordinates.fill(0.0);
         QVector <float> channelValuesF(channelCount());//for getting the coordinates.
         for(int x=0;x<samples;x++){
-            for(int y=0;y<samples;y++){
-                for(int z=0;z<samples;z++){
-                    if (colorChannelCount()==4) {
-                        for(int k=0;k<samples;k++){
+            if (colorChannelCount()==1) {//gray
+                channelValuesF[0]=(max/samples)*(x);
+                channelValuesF[1]=max;
+                fromNormalisedChannelsValue(data, channelValuesF);
+                convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
+                xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                d->gamutXYY<< QPointF(x,y);
+            } else {
+                for(int y=0;y<samples;y++){
+                    for(int z=0;z<samples;z++){
+                        if (colorChannelCount()==4) {
+                            for(int k=0;k<samples;k++){
+                                channelValuesF[0]=(max/samples)*(x);
+                                channelValuesF[1]=(max/samples)*(y);
+                                channelValuesF[2]=(max/samples)*(z);
+                                channelValuesF[3]=(max/samples)*(k);
+                                channelValuesF[4]=max;
+                                fromNormalisedChannelsValue(data, channelValuesF);
+                                convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
+                                xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                                qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                                qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
+                                d->gamutXYY<< QPointF(x,y);
+                            }
+                        } else {
                             channelValuesF[0]=(max/samples)*(x);
                             channelValuesF[1]=(max/samples)*(y);
                             channelValuesF[2]=(max/samples)*(z);
-                            channelValuesF[3]=(max/samples)*(k);
-                            channelValuesF[4]=max;
-                            fromNormalisedChannelsValue(data, channelValuesF);
-                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
-                            xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                            channelValuesF[3]=max;
+                            if (colorModelId().id()!="XYZA") { //no need for conversion when using xyz.
+                                fromNormalisedChannelsValue(data, channelValuesF);
+                                convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric,         KoColorConversionTransformation::adjustmentConversionFlags());
+                                xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                            }
                             qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
                             qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
                             d->gamutXYY<< QPointF(x,y);
                         }
-                    } else {
-                        channelValuesF[0]=(max/samples)*(x);
-                        channelValuesF[1]=(max/samples)*(y);
-                        channelValuesF[2]=(max/samples)*(z);
-                        channelValuesF[3]=max;
-                        if (colorModelId().id()!="XYZA") { //no need for conversion when using xyz.
-                            fromNormalisedChannelsValue(data, channelValuesF);
-                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
-                            xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
-                        }
-                        qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
-                        qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
-                        d->gamutXYY<< QPointF(x,y);
                     }
                 }
+                
             }
         }
+        //if we ever implement a boundary-checking thing I'd add it here.
         return d->gamutXYY;
-        //miniversion of the above for colorants here...
     } else {
         return d->gamutXYY;
     }
