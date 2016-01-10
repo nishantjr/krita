@@ -572,11 +572,24 @@ void KisCIETongueWidget::drawGamut()
     QPainterPath path;
     //gamutPaint.setCompositionMode(QPainter::CompositionMode_Clear);
     gamutPaint.setRenderHint(QPainter::Antialiasing);
+    path.setFillRule(Qt::WindingFill);
     gamutPaint.setBrush(Qt::white);
     gamutPaint.setPen(Qt::white);
-    path.setFillRule(Qt::WindingFill);
     int x, y = 0;
     if (!d->gamut.empty()) {
+        gamutPaint.setOpacity(0.5);
+        if (d->colorModel == KisCIETongueWidget::RGBA) {
+            mapPoint(x, y, (QPointF(d->Primaries[0],d->Primaries[1])) );
+            path.moveTo(QPointF(x + d->xBias,y));
+            mapPoint(x, y, (QPointF(d->Primaries[3],d->Primaries[4])) );
+            path.lineTo(QPointF(x + d->xBias,y));
+            mapPoint(x, y, (QPointF(d->Primaries[6],d->Primaries[7])) );
+            path.lineTo(QPointF(x + d->xBias,y));
+            mapPoint(x, y, (QPointF(d->Primaries[0],d->Primaries[1])) );
+            path.lineTo(QPointF(x + d->xBias,y));
+        }
+        gamutPaint.drawPath(path);
+        gamutPaint.setOpacity(1.0);
         foreach (QPointF Point, d->gamut) {
             mapPoint(x, y, Point);
             gamutPaint.drawEllipse(x + d->xBias- 2, y-2, 4, 4);
@@ -585,7 +598,7 @@ void KisCIETongueWidget::drawGamut()
             //path.lineTo(Point);
         }
     }
-    //gamutPaint.drawPath(path);
+    
     gamutPaint.end();
     d->painter.save();
     d->painter.setOpacity(0.5);
