@@ -112,11 +112,7 @@ QPolygonF KoColorSpace::gamutXYY() const
         //now, let's decide on the boundary. This is a bit tricky because icc profiles can be both matrix-shaper and cLUT at once if the maker so pleases.
         //first make a list of colors.
         quint8 data[channelCount()];
-        qreal max = 0;//this doesn't work...
-        if (colorDepthId().id()=="U8"){ max = 255.0;} else
-        if (colorDepthId().id()=="U16"){max = 65535.0;}
-        if (colorDepthId().id()=="F32"||colorDepthId().id()=="F16"){ max = 1.0;} else
-        {max = this->channels()[0]->getUIMax();}
+        qreal max = 1.0;
         int samples = 5;//amount of samples in our color space.
         QString name = KoColorSpaceRegistry::instance()->colorSpaceFactory("XYZAF16")->defaultProfile();
         const KoColorSpace* xyzColorSpace = KoColorSpaceRegistry::instance()->colorSpace("XYZA", "F16", name);
@@ -129,11 +125,12 @@ QPolygonF KoColorSpace::gamutXYY() const
                 for(int z=0;z<samples;z++){
                     if (colorChannelCount()==4) {
                         for(int k=0;k<samples;k++){
-                            data[0]=(max/samples)*(x);
-                            data[1]=(max/samples)*(y);
-                            data[2]=(max/samples)*(z);
-                            data[3]=(max/samples)*(k);
-                            data[4]=max;
+                            channelValuesF[0]=(max/samples)*(x);
+                            channelValuesF[1]=(max/samples)*(y);
+                            channelValuesF[2]=(max/samples)*(z);
+                            channelValuesF[3]=(max/samples)*(k);
+                            channelValuesF[4]=max;
+                            fromNormalisedChannelsValue(data, channelValuesF);
                             convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
                             xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
                             qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
@@ -141,12 +138,15 @@ QPolygonF KoColorSpace::gamutXYY() const
                             d->gamutXYY<< QPointF(x,y);
                         }
                     } else {
-                        data[0]=(max/samples)*(x);
-                        data[1]=(max/samples)*(y);
-                        data[2]=(max/samples)*(z);
-                        data[3]=max;
-                        convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
-                        xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                        channelValuesF[0]=(max/samples)*(x);
+                        channelValuesF[1]=(max/samples)*(y);
+                        channelValuesF[2]=(max/samples)*(z);
+                        channelValuesF[3]=max;
+                        if (colorModelId().id()!="XYZA") { //no need for conversion when using xyz.
+                            fromNormalisedChannelsValue(data, channelValuesF);
+                            convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, 0);
+                            xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                        }
                         qreal x = channelValuesF[0]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
                         qreal y = channelValuesF[1]/(channelValuesF[0]+channelValuesF[1]+channelValuesF[2]);
                         d->gamutXYY<< QPointF(x,y);
