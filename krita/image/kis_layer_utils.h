@@ -31,6 +31,7 @@ namespace KisMetaData
 namespace KisLayerUtils
 {
     KRITAIMAGE_EXPORT void sortMergableNodes(KisNodeSP root, QList<KisNodeSP> &inputNodes, QList<KisNodeSP> &outputNodes);
+    KRITAIMAGE_EXPORT KisNodeList sortMergableNodes(KisNodeSP root, KisNodeList nodes);
     KRITAIMAGE_EXPORT void filterMergableNodes(QList<KisNodeSP> &nodes, bool allowMasks = false);
 
     KRITAIMAGE_EXPORT void mergeDown(KisImageSP image, KisLayerSP layer, const KisMetaData::MergeStrategy* strategy);
@@ -43,6 +44,8 @@ namespace KisLayerUtils
 
     KRITAIMAGE_EXPORT void flattenLayer(KisImageSP image, KisLayerSP layer);
     KRITAIMAGE_EXPORT void flattenImage(KisImageSP image);
+
+    KRITAIMAGE_EXPORT void addCopyOfNameTag(KisNodeSP node);
 
     typedef QMap<int, QSet<KisNodeSP> > FrameJobs;
     void updateFrameJobs(FrameJobs *jobs, KisNodeSP node);

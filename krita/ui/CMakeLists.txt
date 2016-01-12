@@ -4,8 +4,6 @@
 # warning: case value ‘1002’ not in enumerated type ‘QEvent::Type’ [-Wswitch]
 if (CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(${KDE4_ENABLE_EXCEPTIONS} -Wno-switch)
-else ()
-    kde_enable_exceptions()
 endif ()
 
 include_directories(
@@ -108,6 +106,7 @@ set(kritaui_LIB_SRCS
     kis_node_manager.cpp
     kis_node_juggler_compressed.cpp
     kis_node_selection_adapter.cpp
+    kis_node_insertion_adapter.cpp
     kis_node_model.cpp
     kis_model_index_converter_base.cpp
     kis_model_index_converter.cpp
@@ -340,6 +339,9 @@ set(kritaui_LIB_SRCS
     KisNetworkAccessManager.cpp
     KisWelcomeScreen.cpp
     KisMultiFeedRSSModel.cpp
+
+    KisPaletteModel.cpp
+    KisColorsetChooser.cpp
 )
 
 if(WIN32)
