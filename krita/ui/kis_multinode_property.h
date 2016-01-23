@@ -25,11 +25,13 @@
 #include <QRegExp>
 #include <QBitArray>
 
+#include <kundo2command.h>
 #include <KoColorSpace.h>
 #include <KoChannelInfo.h>
 
 #include "kis_node.h"
 #include "kis_layer.h"
+#include "kis_layer_utils.h"
 
 class KisMultinodePropertyInterface;
 class MultinodePropertyBaseConnector;
@@ -188,27 +190,6 @@ private:
     QString m_propName;
 };
 
-// TODO: move to KisLayerUtils
-#include <functional>
-
-template <typename T>
-bool checkNodesDiffer(KisNodeList nodes, std::function<T(KisNodeSP)> checkerFunc)
-{
-    bool valueDiffers = false;
-    bool initialized = false;
-    T currentValue;
-    Q_FOREACH (KisNodeSP node, nodes) {
-        if (!initialized) {
-            currentValue = checkerFunc(node);
-            initialized = true;
-        } else if (currentValue != checkerFunc(node)) {
-            valueDiffers = true;
-            break;
-        }
-    }
-    return valueDiffers;
-}
-
 struct ChannelFlagAdapter : public BaseAdapter {
     typedef bool ValueType;
     typedef MultinodePropertyBoolConnector<ChannelFlagAdapter> ConnectorType;
@@ -257,7 +238,7 @@ struct ChannelFlagAdapter : public BaseAdapter {
         PropertyList props;
 
         {
-            bool nodesDiffer = checkNodesDiffer<const KoColorSpace*>(nodes, [](KisNodeSP node) { return node->colorSpace(); });
+            bool nodesDiffer = KisLayerUtils::checkNodesDiffer<const KoColorSpace*>(nodes, [](KisNodeSP node) { return node->colorSpace(); });
 
             if (nodesDiffer) {
                 return props;
@@ -403,6 +384,52 @@ private:
 };
 
 /******************************************************************/
+/*               MultinodePropertyUndoCommand                     */
+/******************************************************************/
+
+template <class PropertyAdapter>
+class MultinodePropertyUndoCommand : public KUndo2Command
+{
+public:
+    typedef typename PropertyAdapter::ValueType ValueType;
+public:
+    MultinodePropertyUndoCommand(PropertyAdapter propAdapter,
+                                 KisNodeList nodes,
+                                 const QList<ValueType> &oldValues,
+                                 ValueType newValue,
+                                 KUndo2Command *parent = 0)
+        : KUndo2Command(parent),
+          m_propAdapter(propAdapter),
+          m_nodes(nodes),
+          m_oldValues(oldValues),
+          m_newValue(newValue)
+    {
+    }
+
+    void undo() {
+        int index = 0;
+        Q_FOREACH (KisNodeSP node, m_nodes) {
+            m_propAdapter.setPropForNode(node, m_oldValues[index], -1);
+            index++;
+        }
+    }
+
+    void redo() {
+        int index = 0;
+        Q_FOREACH (KisNodeSP node, m_nodes) {
+            m_propAdapter.setPropForNode(node, m_newValue, index);
+            index++;
+        }
+    }
+
+private:
+    PropertyAdapter m_propAdapter;
+    KisNodeList m_nodes;
+    QList<ValueType> m_oldValues;
+    ValueType m_newValue;
+};
+
+/******************************************************************/
 /*               KisMultinodePropertyInterface                    */
 /******************************************************************/
 
@@ -422,6 +449,8 @@ public:
 
     virtual void connectValueChangedSignal(const QObject *receiver, const char *method, Qt::ConnectionType type = Qt::AutoConnection) = 0;
     virtual void connectIgnoreCheckBox(QCheckBox *ignoreBox) = 0;
+
+    virtual KUndo2Command* createPostExecutionUndoCommand() = 0;
 };
 
 typedef QSharedPointer<KisMultinodePropertyInterface> KisMultinodePropertyInterfaceSP;
@@ -530,6 +559,13 @@ public:
 
     bool isIgnored() const {
         return m_isIgnored;
+    }
+
+    KUndo2Command* createPostExecutionUndoCommand() {
+        KIS_ASSERT_RECOVER(!m_isIgnored) { return new KUndo2Command(); }
+
+        return new MultinodePropertyUndoCommand<PropertyAdapter>(m_propAdapter, m_nodes,
+                                                                 m_savedValues, m_currentValue);
     }
 
     // TODO: disconnect methods...

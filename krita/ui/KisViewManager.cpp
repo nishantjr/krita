@@ -156,6 +156,7 @@ public:
         , openResourcesDirectory(0)
         , rotateCanvasRight(0)
         , rotateCanvasLeft(0)
+        , resetCanvasRotation(0)
         , wrapAroundAction(0)
         , levelOfDetailAction(0)
         , showRulersAction(0)
@@ -194,6 +195,7 @@ public:
     KisAction *openResourcesDirectory;
     KisAction *rotateCanvasRight;
     KisAction *rotateCanvasLeft;
+    KisAction *resetCanvasRotation;
     KisAction *wrapAroundAction;
     KisAction *levelOfDetailAction;
     KisAction *showRulersAction;
@@ -343,6 +345,7 @@ void KisViewManager::setCurrentView(KisView *view)
         d->viewConnections.addUniqueConnection(&d->nodeManager, SIGNAL(sigNodeActivated(KisNodeSP)), doc->image(), SLOT(requestStrokeEndActiveNode()));
         d->viewConnections.addUniqueConnection(d->rotateCanvasRight, SIGNAL(triggered()), canvasController, SLOT(rotateCanvasRight15()));
         d->viewConnections.addUniqueConnection(d->rotateCanvasLeft, SIGNAL(triggered()),canvasController, SLOT(rotateCanvasLeft15()));
+        d->viewConnections.addUniqueConnection(d->resetCanvasRotation, SIGNAL(triggered()),canvasController, SLOT(resetCanvasRotation()));
 
         d->viewConnections.addUniqueConnection(d->wrapAroundAction, SIGNAL(toggled(bool)), canvasController, SLOT(slotToggleWrapAroundMode(bool)));
         d->wrapAroundAction->setChecked(canvasController->wrapAroundMode());
@@ -588,6 +591,7 @@ void KisViewManager::createActions()
 
     d->rotateCanvasRight   = actionManager()->createAction("rotate_canvas_right");
     d->rotateCanvasLeft    = actionManager()->createAction("rotate_canvas_left");
+    d->resetCanvasRotation = actionManager()->createAction("reset_canvas_rotation");
     d->wrapAroundAction    = actionManager()->createAction("wrap_around_mode");
     d->levelOfDetailAction = actionManager()->createAction("level_of_detail_mode");
 
@@ -595,9 +599,9 @@ void KisViewManager::createActions()
     tAction->setChecked(true);
     connect(tAction, SIGNAL(toggled(bool)), this, SLOT(showStatusBar(bool)));
 
-    tAction = actionManager()->createAction("view_show_just_the_canvas");
+    tAction = actionManager()->createAction("view_show_canvas_only");
     tAction->setChecked(false);
-    connect(tAction, SIGNAL(toggled(bool)), this, SLOT(showJustTheCanvas(bool)));
+    connect(tAction, SIGNAL(toggled(bool)), this, SLOT(switchCanvasOnly(bool)));
 
     //Workaround, by default has the same shortcut as mirrorCanvas
     KisAction *a = dynamic_cast<KisAction*>(actionCollection()->action("format_italic"));
@@ -988,7 +992,7 @@ void KisViewManager::showStatusBar(bool toggled)
     }
 }
 
-void KisViewManager::showJustTheCanvas(bool toggled)
+void KisViewManager::switchCanvasOnly(bool toggled)
 {
     KisConfig cfg;
     KisMainWindow* main = mainWindow();
@@ -1071,7 +1075,7 @@ void KisViewManager::showJustTheCanvas(bool toggled)
         // show a fading heads-up display about the shortcut to go back
 
         showFloatingMessage(i18n("Going into Canvas-Only mode.\nPress %1 to go back.",
-                                 actionCollection()->action("view_show_just_the_canvas")->shortcut().toString()), QIcon());
+                                 actionCollection()->action("view_show_canvas_only")->shortcut().toString()), QIcon());
     }
     else {
         main->restoreState(d->canvasState);
@@ -1150,7 +1154,7 @@ void KisViewManager::showHideScrollbars()
     if (!d->currentImageView->canvasController()) return;
 
     KisConfig cfg;
-    bool toggled = actionCollection()->action("view_show_just_the_canvas")->isChecked();
+    bool toggled = actionCollection()->action("view_show_canvas_only")->isChecked();
 
     if ( (toggled && cfg.hideScrollbarsFullscreen()) || (!toggled && cfg.hideScrollbars()) ) {
         d->currentImageView->canvasController()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

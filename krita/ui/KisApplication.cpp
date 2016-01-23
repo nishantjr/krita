@@ -41,12 +41,15 @@
 #include <QTimer>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QStandardPaths>
+#include <QMessageBox>
 
 #include <klocalizedstring.h>
 #include <kdesktopfile.h>
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
+#include <KoColorSpaceRegistry.h>
 #include <KoPluginLoader.h>
 #include <KoShapeRegistry.h>
 #include <KoDpi.h>
@@ -77,6 +80,9 @@
 #include "KisApplicationArguments.h"
 #include <kis_debug.h>
 #include "kis_action_registry.h"
+#include <kis_brush_server.h>
+#include <kis_resource_server_provider.h>
+#include <KoResourceServerProvider.h>
 
 #ifdef HAVE_OPENGL
 #include "opengl/kis_opengl.h"
@@ -144,18 +150,22 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
 
     setApplicationDisplayName("Krita");
     setApplicationName("krita");
+    // Note: Qt docs suggest we set this, but if we do, we get resource paths of the form of krita/krita, which is weird.
+//    setOrganizationName("krita");
+    setOrganizationDomain("krita.org");
 
     QString version = CalligraVersionWrapper::versionString(true);
     setApplicationVersion(version);
     setWindowIcon(KisIconUtils::loadIcon("calligrakrita"));
 
-    QStringList styles = QStringList() << "Breeze" << "Oxygen" << "Fusion" << "Plastique";
+    QStringList styles = QStringList() << "Fusion" << "Plastique";
     if (!styles.contains(style()->objectName())) {
         Q_FOREACH (const QString & style, styles) {
             if (!setStyle(style)) {
                 qDebug() << "No" << style << "available.";
             }
             else {
+                qDebug() << "Set style" << style;
                 break;
             }
         }
@@ -164,6 +174,24 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
 
 #ifdef HAVE_OPENGL
     KisOpenGL::initialize();
+
+    /**
+     * Warn about Intel's broken video drivers
+     */
+#if defined HAVE_OPENGL && defined Q_OS_WIN
+    KisConfig cfg;
+    QString renderer = KisOpenGL::renderer();
+    if (cfg.useOpenGL() && renderer.startsWith("Intel") && !cfg.readEntry("WarnedAboutIntel", false)) {
+        QMessageBox::information(0,
+                                 i18nc("@title:window", "Krita: Warning"),
+                                 i18n("You have an Intel(R) HD Graphics video adapter.\n"
+                                      "If you experience problems like a black or blank screen,"
+                                      "please update your display driver to the latest version.\n\n"
+                                      "You can also disable OpenGL rendering in Krita's Settings.\n"));
+        cfg.writeEntry("WarnedAboutIntel", true);
+    }
+#endif
+
 #endif
 
 }
@@ -194,6 +222,100 @@ BOOL isWow64()
     return bIsWow64;
 }
 #endif
+
+void initializeGlobals(const KisApplicationArguments &args)
+{
+    int dpiX = args.dpiX();
+    int dpiY = args.dpiY();
+    if (dpiX > 0 && dpiY > 0) {
+        KoDpi::setDPI(dpiX, dpiY);
+    }
+}
+
+void addResourceTypes()
+{
+    // All Krita's resource types
+    KoResourcePaths::addResourceType("kis_pics", "data", "/pics/");
+    KoResourcePaths::addResourceType("kis_images", "data", "/images/");
+    KoResourcePaths::addResourceType("icc_profiles", "data", "/profiles/");
+    KoResourcePaths::addResourceType("metadata_schema", "data", "/metadata/schemas/");
+    KoResourcePaths::addResourceType("kis_brushes", "data", "/brushes/");
+    KoResourcePaths::addResourceType("kis_taskset", "data", "/taskset/");
+    KoResourcePaths::addResourceType("kis_taskset", "data", "/taskset/");
+    KoResourcePaths::addResourceType("gmic_definitions", "data", "/gmic/");
+    KoResourcePaths::addResourceType("kis_resourcebundles", "data", "/bundles/");
+    KoResourcePaths::addResourceType("kis_defaultpresets", "data", "/defaultpresets/");
+    KoResourcePaths::addResourceType("kis_paintoppresets", "data", "/paintoppresets/");
+    KoResourcePaths::addResourceType("kis_workspaces", "data", "/workspaces/");
+    KoResourcePaths::addResourceType("psd_layer_style_collections", "data", "/asl");
+    KoResourcePaths::addResourceType("ko_patterns", "data", "/patterns/", true);
+    KoResourcePaths::addResourceType("ko_gradients", "data", "/gradients/");
+    KoResourcePaths::addResourceType("ko_gradients", "data", "/gradients/", true);
+    KoResourcePaths::addResourceType("ko_palettes", "data", "/palettes/", true);
+    KoResourcePaths::addResourceType("kis_shortcuts", "data", "/shortcuts/");
+    KoResourcePaths::addResourceType("kis_actions", "data", "/actions");
+    KoResourcePaths::addResourceType("icc_profiles", "data", "/color/icc");
+    KoResourcePaths::addResourceType("ko_effects", "data", "/effects/");
+    KoResourcePaths::addResourceType("tags", "data", "/tags/");
+
+//    // Extra directories to look for create resources. (Does anyone actually use that anymore?)
+//    KoResourcePaths::addResourceDir("ko_gradients", "/usr/share/create/gradients/gimp");
+//    KoResourcePaths::addResourceDir("ko_gradients", QDir::homePath() + QString("/.create/gradients/gimp"));
+//    KoResourcePaths::addResourceDir("ko_patterns", "/usr/share/create/patterns/gimp");
+//    KoResourcePaths::addResourceDir("ko_patterns", QDir::homePath() + QString("/.create/patterns/gimp"));
+//    KoResourcePaths::addResourceDir("kis_brushes", "/usr/share/create/brushes/gimp");
+//    KoResourcePaths::addResourceDir("kis_brushes", QDir::homePath() + QString("/.create/brushes/gimp"));
+//    KoResourcePaths::addResourceDir("ko_palettes", "/usr/share/create/swatches");
+//    KoResourcePaths::addResourceDir("ko_palettes", QDir::homePath() + QString("/.create/swatches"));
+
+    // Make directories for all resources we can save, and tags
+    QDir d;
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/tags/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/asl/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/bundles/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/gradients/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/paintoppresets/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/palettes/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/patterns/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/taskset/");
+    d.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/workspaces/");
+}
+
+void loadResources()
+{
+    // Load base resources
+    KoResourceServerProvider::instance()->gradientServer(true);
+    KoResourceServerProvider::instance()->patternServer(true);
+    KoResourceServerProvider::instance()->paletteServer(false);
+    KisBrushServer::instance()->brushServer(true);
+    // load paintop presets
+    KisResourceServerProvider::instance()->paintOpPresetServer(true);
+    KisResourceServerProvider::instance()->resourceBundleServer();
+}
+
+void loadPlugins()
+{
+    KoShapeRegistry* r = KoShapeRegistry::instance();
+    r->add(new KisShapeSelectionFactory());
+
+    KisActionRegistry::instance();
+    KisFilterRegistry::instance();
+    KisGeneratorRegistry::instance();
+    KisPaintOpRegistry::instance();
+    KoColorSpaceRegistry::instance();
+    // Load the krita-specific tools
+    KoPluginLoader::instance()->load(QString::fromLatin1("Krita/Tool"),
+                                     QString::fromLatin1("[X-Krita-Version] == 28"));
+
+    // Load dockers
+    KoPluginLoader::instance()->load(QString::fromLatin1("Krita/Dock"),
+                                     QString::fromLatin1("[X-Krita-Version] == 28"));
+
+
+    // XXX_EXIV: make the exiv io backends real plugins
+    KisExiv2::initialize();
+}
+
 
 bool KisApplication::start(const KisApplicationArguments &args)
 {
@@ -229,11 +351,7 @@ bool KisApplication::start(const KisApplicationArguments &args)
 
 #endif
 
-    int dpiX = args.dpiX();
-    int dpiY = args.dpiY();
-    if (dpiX > 0 && dpiY > 0) {
-        KoDpi::setDPI(dpiX, dpiY);
-    }
+    initializeGlobals(args);
 
     const bool doTemplate = args.doTemplate();
     const bool print = args.print();
@@ -265,38 +383,15 @@ bool KisApplication::start(const KisApplicationArguments &args)
     Digikam::ThemeManager themeManager;
     themeManager.setCurrentTheme(group.readEntry("Theme", "Krita dark"));
 
-    // for cursors
-    KoResourcePaths::addResourceType("kis_pics", "data", "krita/pics/");
-
-    // for images in the paintop box
-    KoResourcePaths::addResourceType("kis_images", "data", "krita/images/");
-
-    KoResourcePaths::addResourceType("icc_profiles", "data", "krita/profiles/");
-
-
     ResetStarting resetStarting(d->splashScreen); // remove the splash when done
     Q_UNUSED(resetStarting);
 
-    // Load various global plugins
-    KoShapeRegistry* r = KoShapeRegistry::instance();
-    r->add(new KisShapeSelectionFactory());
-
-    KisActionRegistry::instance();
-    KisFilterRegistry::instance();
-    KisGeneratorRegistry::instance();
-    KisPaintOpRegistry::instance();
-
-    // Load the krita-specific tools
-    KoPluginLoader::instance()->load(QString::fromLatin1("Krita/Tool"),
-                                     QString::fromLatin1("[X-Krita-Version] == 28"));
-
-    // Load dockers
-    KoPluginLoader::instance()->load(QString::fromLatin1("Krita/Dock"),
-                                     QString::fromLatin1("[X-Krita-Version] == 28"));
-
-
-    // XXX_EXIV: make the exiv io backends real plugins
-    KisExiv2::initialize();
+    // Make sure we can save resources and tags
+    addResourceTypes();
+    // Load all resources and tags before the plugins do that
+    loadResources();
+    // Load the plugins
+    loadPlugins();
 
     KisMainWindow *mainWindow = 0;
 
