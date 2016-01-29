@@ -19,10 +19,14 @@
 #ifndef __KIS_LAYER_UTILS_H
 #define __KIS_LAYER_UTILS_H
 
+#include <functional>
+
 #include "kundo2command.h"
 #include "kis_types.h"
 #include "kritaimage_export.h"
 #include "kis_command_utils.h"
+
+class KoProperties;
 
 namespace KisMetaData
 {
@@ -47,6 +51,7 @@ namespace KisLayerUtils
     KRITAIMAGE_EXPORT void flattenImage(KisImageSP image);
 
     KRITAIMAGE_EXPORT void addCopyOfNameTag(KisNodeSP node);
+    KRITAIMAGE_EXPORT KisNodeList findNodesWithProps(KisNodeSP root, const KoProperties &props, bool excludeRoot);
 
     typedef QMap<int, QSet<KisNodeSP> > FrameJobs;
     void updateFrameJobs(FrameJobs *jobs, KisNodeSP node);
@@ -87,6 +92,34 @@ namespace KisLayerUtils
     private:
         bool checkIsSourceForClone(KisNodeSP src, const QList<KisNodeSP> &nodes);
     };
+
+    class KRITAIMAGE_EXPORT KisSimpleUpdateCommand : public KisCommandUtils::FlipFlopCommand
+    {
+    public:
+        KisSimpleUpdateCommand(KisNodeList nodes, bool finalize, KUndo2Command *parent = 0);
+        void end();
+        static void updateNodes(const KisNodeList &nodes);
+    private:
+        KisNodeList m_nodes;
+    };
+
+    template <typename T>
+        bool checkNodesDiffer(KisNodeList nodes, std::function<T(KisNodeSP)> checkerFunc)
+    {
+        bool valueDiffers = false;
+        bool initialized = false;
+        T currentValue;
+        Q_FOREACH (KisNodeSP node, nodes) {
+            if (!initialized) {
+                currentValue = checkerFunc(node);
+                initialized = true;
+            } else if (currentValue != checkerFunc(node)) {
+                valueDiffers = true;
+                break;
+            }
+        }
+        return valueDiffers;
+    }
 };
 
 #endif /* __KIS_LAYER_UTILS_H */

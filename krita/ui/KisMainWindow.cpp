@@ -118,13 +118,15 @@
 #include "kis_action_manager.h"
 #include "thememanager.h"
 #include "kis_resource_server_provider.h"
-#include "kis_animation_importer.h"
 #ifdef HAVE_OPENGL
+#include "kis_animation_importer.h"
+#include "dialogs/kis_dlg_import_image_sequence.h"
 #include "kis_animation_exporter.h"
 #endif
 #include "kis_icon_utils.h"
 #include <KisImportExportFilter.h>
 #include <KisDocumentEntry.h>
+#include "kis_signal_compressor_with_param.h"
 
 class ToolDockerFactory : public KoDockFactoryBase
 {
@@ -150,7 +152,8 @@ class Q_DECL_HIDDEN KisMainWindow::Private
 {
 public:
     Private(KisMainWindow *parent)
-        : viewManager(0)
+        : q(parent)
+        , viewManager(0)
         , firstTime(true)
         , windowSizeDirty(false)
         , readOnly(false)
@@ -198,6 +201,7 @@ public:
         qDeleteAll(toolbarList);
     }
 
+    KisMainWindow *q;
     KisViewManager *viewManager;
 
     QPointer<KisView> activeView;
@@ -220,8 +224,8 @@ public:
     KisAction *printAction;
     KisAction *printActionPreview;
     KisAction *exportPdf;
-    KisAction *importAnimation;
 #ifdef HAVE_OPENGL
+    KisAction *importAnimation;
     KisAction *exportAnimation;
 #endif
     KisAction *closeAll;
@@ -269,9 +273,21 @@ public:
 
     QByteArray lastExportedFormat;
     int lastExportSpecialOutputFlag;
+    QScopedPointer<KisSignalCompressorWithParam<int> > tabSwitchCompressor;
 
     KisActionManager * actionManager() {
         return viewManager->actionManager();
+    }
+
+    QTabBar* findTabBarHACK() {
+        QObjectList objects = mdiArea->children();
+        Q_FOREACH (QObject *object, objects) {
+            QTabBar *bar = qobject_cast<QTabBar*>(object);
+            if (bar) {
+                return bar;
+            }
+        }
+        return 0;
     }
 };
 
@@ -460,6 +476,15 @@ KisMainWindow::KisMainWindow()
     d->viewManager->updateIcons();
 
     QTimer::singleShot(1000, this, SLOT(checkSanity()));
+
+    {
+        using namespace std::placeholders; // For _1 placeholder
+        std::function<void (int)> callback(
+            std::bind(&KisMainWindow::switchTab, this, _1));
+
+        d->tabSwitchCompressor.reset(
+            new KisSignalCompressorWithParam<int>(500, callback, KisSignalCompressor::FIRST_INACTIVE));
+    }
 }
 
 void KisMainWindow::setNoCleanup(bool noCleanup)
@@ -1195,7 +1220,10 @@ void KisMainWindow::setActiveView(KisView* view)
 
 void KisMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasUrls()) {
+    if (event->mimeData()->hasUrls() ||
+        event->mimeData()->hasFormat("application/x-krita-node") ||
+        event->mimeData()->hasFormat("application/x-qt-image")) {
+
         event->accept();
     }
 }
@@ -1207,6 +1235,43 @@ void KisMainWindow::dropEvent(QDropEvent *event)
             openDocument(url);
         }
     }
+}
+
+void KisMainWindow::dragMoveEvent(QDragMoveEvent * event)
+{
+    QTabBar *tabBar = d->findTabBarHACK();
+
+    if (!tabBar && d->mdiArea->viewMode() == QMdiArea::TabbedView) {
+        qWarning() << "WARNING!!! Cannot find QTabBar in the main window! Looks like Qt has changed behavior. Drag & Drop between multiple tabs might not work properly (tabs will not switch automatically)!";
+    }
+
+    if (tabBar && tabBar->isVisible()) {
+        QPoint pos = tabBar->mapFromGlobal(mapToGlobal(event->pos()));
+        if (tabBar->rect().contains(pos)) {
+            const int tabIndex = tabBar->tabAt(pos);
+
+            if (tabIndex >= 0 && tabBar->currentIndex() != tabIndex) {
+                d->tabSwitchCompressor->start(tabIndex);
+            }
+        } else if (d->tabSwitchCompressor->isActive()) {
+            d->tabSwitchCompressor->stop();
+        }
+    }
+}
+
+void KisMainWindow::dragLeaveEvent(QDragLeaveEvent * event)
+{
+    if (d->tabSwitchCompressor->isActive()) {
+        d->tabSwitchCompressor->stop();
+    }
+}
+
+void KisMainWindow::switchTab(int index)
+{
+    QTabBar *tabBar = d->findTabBarHACK();
+    if (!tabBar) return;
+
+    tabBar->setCurrentIndex(index);
 }
 
 void KisMainWindow::slotFileNew()
@@ -1488,15 +1553,25 @@ KisPrintJob* KisMainWindow::exportToPdf(KoPageLayout pageLayout, QString pdfFile
 
 void KisMainWindow::importAnimation()
 {
+#ifdef HAVE_OPENGL
     if (!activeView()) return;
 
     KisDocument *document = activeView()->document();
     if (!document) return;
 
-    KisAnimationImporterUI importer(this);
-    importer.importSequence(document);
+    KisDlgImportImageSequence dlg(this, document);
 
-    activeView()->canvasBase()->refetchDataFromImage();
+    if (dlg.exec() == QDialog::Accepted) {
+        QStringList files = dlg.files();
+        int firstFrame = dlg.firstFrame();
+        int step = dlg.step();
+
+        KisAnimationImporter importer(document->image());
+        importer.import(files, firstFrame, step);
+
+        activeView()->canvasBase()->refetchDataFromImage();
+    }
+#endif
 }
 
 void KisMainWindow::exportAnimation()
@@ -2113,10 +2188,10 @@ void KisMainWindow::createActions()
     d->exportPdf  = actionManager->createAction("file_export_pdf");
     connect(d->exportPdf, SIGNAL(triggered()), this, SLOT(exportToPdf()));
 
+#ifdef HAVE_OPENGL
     d->importAnimation  = actionManager->createAction("file_import_animation");
     connect(d->importAnimation, SIGNAL(triggered()), this, SLOT(importAnimation()));
 
-#ifdef HAVE_OPENGL
     d->exportAnimation  = actionManager->createAction("file_export_animation");
     connect(d->exportAnimation, SIGNAL(triggered()), this, SLOT(exportAnimation()));
 #endif

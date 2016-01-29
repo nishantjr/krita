@@ -2515,7 +2515,7 @@
       <statusTip></statusTip>
     </Action>
     <Action name="duplicatelayer">
-      <icon>edit-copy</icon>
+      <icon>duplicatelayer</icon>
       <text>&amp;Duplicate Layer or Mask</text>
       <whatsThis></whatsThis>
       <toolTip>Duplicate Layer or Mask</toolTip>
@@ -3176,7 +3176,7 @@
       <statusTip></statusTip>
     </Action>
     <Action name="move_layer_up">
-      <icon></icon>
+      <icon>arrowupblr</icon>
       <text>Move Layer or Mask Up</text>
       <whatsThis></whatsThis>
       <toolTip>Move Layer or Mask Up</toolTip>
@@ -3187,8 +3187,8 @@
       <statusTip></statusTip>
     </Action>
     <Action name="move_layer_down">
-      <icon></icon>
-      <text>Move Layer or Mask down</text>
+      <icon>arrowdown</icon>
+      <text>Move Layer or Mask Down</text>
       <whatsThis></whatsThis>
       <toolTip>Move Layer or Mask Down</toolTip>
       <iconText></iconText>
@@ -3205,8 +3205,8 @@
       <iconText>Properties</iconText>
       <activationFlags>1000</activationFlags>
       <activationConditions>1</activationConditions>
-      <shortcut></shortcut>
-      <defaultShortcut></defaultShortcut>
+      <shortcut>F3</shortcut>
+      <defaultShortcut>F3</defaultShortcut>
       <isCheckable>false</isCheckable>
       <statusTip></statusTip>
     </Action>
