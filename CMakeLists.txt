@@ -303,8 +303,8 @@ else()
     set(HAVE_XCB FALSE)
 endif()
 
-# use sane compile flags
 add_definitions(
+  -DTRANSLATION_DOMAIN=\"krita\"
   -DQT_USE_QSTRINGBUILDER
   -DQT_STRICT_ITERATORS
   -DQT_NO_SIGNALS_SLOTS_KEYWORDS
@@ -313,6 +313,29 @@ add_definitions(
   -DQT_NO_URL_CAST_FROM_STRING
   -DQT_DISABLE_DEPRECATED_BEFORE=0
 )
+
+# To avoid the confusion of an endless stream of Eigen warnings.
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUC)
+    add_definitions(-Wno-unused-local-typedefs -Wno-deprecated -Wno-deprecated-declarations)
+endif ()
+
+#
+# The reason for this mode is that the Debug mode disable inlining
+#
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS_KRITADEVS "-O3 -g" CACHE STRING "" FORCE)
+endif()
+
+if(UNIX)
+    set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES};m")
+endif()
+
+if(WIN32)
+    if(MSVC)
+        # C4522: 'class' : multiple assignment operators specified
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd4522")
+    endif()
+endif()
 
 # enable exceptions globally
 kde_enable_exceptions()
@@ -325,6 +348,16 @@ kde_enable_exceptions()
 if(BUILD_TESTING)
     add_definitions(-DCOMPILING_TESTS)
 endif()
+
+set(KRITA_DEFAULT_TEST_DATA_DIR ${CMAKE_SOURCE_DIR}/sdk/tests/data/)
+macro(macro_add_unittest_definitions)
+  add_definitions(-DFILES_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
+  add_definitions(-DFILES_OUTPUT_DIR="${CMAKE_CURRENT_BINARY_DIR}")
+  add_definitions(-DFILES_DEFAULT_DATA_DIR="${KRITA_DEFAULT_TEST_DATA_DIR}")
+endmacro()
+
+
+
 
 # overcome some platform incompatibilities
 if(WIN32)
@@ -357,6 +390,14 @@ if (APPLE)
     SET(CMAKE_CXX_FLAGS "-stdlib=libstdc++ -std=c++11")
 #    find_package(Carbon REQUIRED)
 endif ()
+
+##
+## Test for GNU Scientific Library
+##
+find_package(GSL REQUIRED)
+macro_log_feature(GSL_FOUND "GSL" "GNU Scientific Library" "http://www.gnu.org/software/gsl" FALSE "1.7" "Required by Krita's Transform tool.")
+macro_bool_to_01(GSL_FOUND HAVE_GSL)
+configure_file(config-gsl.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-gsl.h )
 
  ###########################
 ############################
@@ -402,6 +443,7 @@ macro_bool_to_01(FFTW3_FOUND HAVE_FFTW3)
 macro_optional_find_package(OCIO)
 macro_log_feature(OCIO_FOUND "OCIO" "The OpenColorIO Library" "http://www.opencolorio.org" FALSE "" "Required by the Krita LUT docker")
 macro_bool_to_01(OCIO_FOUND HAVE_OCIO)
+
 ##
 ## Look for OpenGL
 ##
@@ -416,13 +458,12 @@ if (USEOPENGL)
     endif()
 endif()
 
-##
-## Test for GNU Scientific Library
-##
-macro_optional_find_package(GSL)
-macro_log_feature(GSL_FOUND "GSL" "GNU Scientific Library" "http://www.gnu.org/software/gsl" FALSE "1.7" "Required by Krita's Transform tool.")
-macro_bool_to_01(GSL_FOUND HAVE_GSL)
-configure_file(config-gsl.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-gsl.h )
+if(HAVE_OPENGL)
+    message(STATUS "OpenGL found -- krita will be able  to use OpenGL for hardware accelerated rendering.")
+else()
+    message(STATUS "OpenGL NOT found - krita will not be able to use OpenGL for hardware accelerated rendering.")
+endif()
+
 
 ##
 ## Test for eigen3
@@ -637,9 +678,7 @@ set(PIGMENT_INCLUDES ${KOPLUGIN_INCLUDES}
                    ${CMAKE_SOURCE_DIR}/libs/pigment
                    ${CMAKE_BINARY_DIR}/libs/pigment
                    ${CMAKE_SOURCE_DIR}/libs/pigment/compositeops
-                   ${CMAKE_SOURCE_DIR}/libs/pigment/resources
                    ${Boost_INCLUDE_DIRS}
-
                    )
 
 # flake depends on koodf and pigment
@@ -723,9 +762,19 @@ endif()
 add_subdirectory(libs)
 add_subdirectory(plugins)
 
+if (NOT WIN32)
+    add_subdirectory( benchmarks )
+endif ()
+
 macro_display_feature_log()
 
 calligra_product_deps_report("product_deps")
 calligra_log_should_build()
 
 configure_file(KoConfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/KoConfig.h )
+configure_file(config_convolution.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config_convolution.h)
+configure_file(config-ocio.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-ocio.h )
+
+check_function_exists(powf HAVE_POWF)
+configure_file(config-powf.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-powf.h)
+
