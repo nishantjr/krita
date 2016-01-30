@@ -62,6 +62,7 @@ KoColorSpace::KoColorSpace(const QString &id, const QString &name, KoMixColorsOp
     d->transfoToLABA16 = 0;
     d->transfoFromLABA16 = 0;
     d->gamutXYY = QPolygonF();
+    d->TRCXYY = QPolygonF();
     d->deletability = NotOwnedByRegistry;
 }
 
@@ -114,7 +115,7 @@ QPolygonF KoColorSpace::gamutXYY() const
         qreal max = 1.0;
         if ((colorModelId().id()=="CMYKA" || colorModelId().id()=="LABA") && colorDepthId().id()=="F32") {
             //boundaries for cmyka/laba have trouble getting the max values for Float, and are pretty awkward in general.
-            max=max = this->channels()[0]->getUIMax();
+            max = this->channels()[0]->getUIMax();
             
         }
         int samples = 5;//amount of samples in our color space.
@@ -127,7 +128,7 @@ QPolygonF KoColorSpace::gamutXYY() const
         QVector <float> channelValuesF(channelCount());//for getting the coordinates.
         for(int x=0;x<samples;x++){
             if (colorChannelCount()==1) {//gray
-                channelValuesF[0]=(max/samples)*(x);
+                channelValuesF[0]=(max/(samples-1))*(x);
                 channelValuesF[1]=max;
                 fromNormalisedChannelsValue(data, channelValuesF);
                 convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
@@ -140,10 +141,10 @@ QPolygonF KoColorSpace::gamutXYY() const
                     for(int z=0;z<samples;z++){
                         if (colorChannelCount()==4) {
                             for(int k=0;k<samples;k++){
-                                channelValuesF[0]=(max/samples)*(x);
-                                channelValuesF[1]=(max/samples)*(y);
-                                channelValuesF[2]=(max/samples)*(z);
-                                channelValuesF[3]=(max/samples)*(k);
+                                channelValuesF[0]=(max/(samples-1))*(x);
+                                channelValuesF[1]=(max/(samples-1))*(y);
+                                channelValuesF[2]=(max/(samples-1))*(z);
+                                channelValuesF[3]=(max/(samples-1))*(k);
                                 channelValuesF[4]=max;
                                 fromNormalisedChannelsValue(data, channelValuesF);
                                 convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::adjustmentConversionFlags());
@@ -153,9 +154,9 @@ QPolygonF KoColorSpace::gamutXYY() const
                                 d->gamutXYY<< QPointF(x,y);
                             }
                         } else {
-                            channelValuesF[0]=(max/samples)*(x);
-                            channelValuesF[1]=(max/samples)*(y);
-                            channelValuesF[2]=(max/samples)*(z);
+                            channelValuesF[0]=(max/(samples-1))*(x);
+                            channelValuesF[1]=(max/(samples-1))*(y);
+                            channelValuesF[2]=(max/(samples-1))*(z);
                             channelValuesF[3]=max;
                             if (colorModelId().id()!="XYZA") { //no need for conversion when using xyz.
                                 fromNormalisedChannelsValue(data, channelValuesF);
@@ -175,6 +176,44 @@ QPolygonF KoColorSpace::gamutXYY() const
         return d->gamutXYY;
     } else {
         return d->gamutXYY;
+    }
+}
+
+QPolygonF KoColorSpace::estimatedTRCXYY() const
+{
+    if (d->TRCXYY.empty()){
+        qreal max = 1.0;
+        if ((colorModelId().id()=="CMYKA" || colorModelId().id()=="LABA") && colorDepthId().id()=="F32") {
+            //boundaries for cmyka/laba have trouble getting the max values for Float, and are pretty awkward in general.
+            max = this->channels()[0]->getUIMax();
+        }
+        QString name = KoColorSpaceRegistry::instance()->colorSpaceFactory("XYZAF16")->defaultProfile();
+        const KoColorSpace* xyzColorSpace = KoColorSpaceRegistry::instance()->colorSpace("XYZA", "F16", name);
+        quint8 data[channelCount()];
+        quint8 data2[4];//xyza is 4.
+        QVector <float> channelValuesF(channelCount());
+        for (int i=0; i<colorChannelCount(); i++) {
+            qreal colorantY=1.0;
+            for (int j=0; j<5; j++){
+                channelValuesF.fill(0.0);
+                channelValuesF[i] = ((max/4)*(j));
+                if (colorModelId().id()!="CMYKA") { channelValuesF[i] = 1.0-channelValuesF[i];}
+                if (colorModelId().id()!="XYZA") { //no need for conversion when using xyz.
+                    fromNormalisedChannelsValue(data, channelValuesF);
+                    convertPixelsTo(data, data2, xyzColorSpace, 1, KoColorConversionTransformation::IntentAbsoluteColorimetric,         KoColorConversionTransformation::adjustmentConversionFlags());
+                    xyzColorSpace->normalisedChannelsValue(data2,channelValuesF);
+                    }
+                if (j==0) {colorantY = channelValuesF[1];}
+                if (colorModelId().id()!="CMYKA") {
+                    d->TRCXYY << QPointF(channelValuesF[1]/colorantY, 1.0-((1.0/4)*(j)));
+                } else {
+                    d->TRCXYY << QPointF((channelValuesF[1]/colorantY), ((1.0/4)*(j)));
+                }
+            }
+        }
+        return d->TRCXYY;
+    } else {
+        return d->TRCXYY;
     }
 }
 /*

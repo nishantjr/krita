@@ -226,7 +226,11 @@ void KisAdvancedColorSpaceSelector::fillDescription()
             }
             d->colorSpaceSelector->TRCwidget->setRGBCurve(redcurve, greencurve, bluecurve);
         } else {
-            d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
+            QPolygonF curve = currentColorSpace()->estimatedTRCXYY();
+            redcurve << curve.at(0) << curve.at(1) << curve.at(2) << curve.at(3) << curve.at(4);
+            greencurve << curve.at(5) << curve.at(6) << curve.at(7) << curve.at(8) << curve.at(9);
+            bluecurve << curve.at(10) << curve.at(11) << curve.at(12) << curve.at(13) << curve.at(14);
+            d->colorSpaceSelector->TRCwidget->setRGBCurve(redcurve, greencurve, bluecurve);
         }
 
         if (estimatedTRC[0] == -1) {
@@ -267,6 +271,9 @@ void KisAdvancedColorSpaceSelector::fillDescription()
         d->colorSpaceSelector->TongueWidget->setGamut(currentColorSpace()->gamutXYY());
         QString estimatedCurve = " Estimated curve: ";
         QPolygonF tonecurve;
+        QPolygonF cyancurve;
+        QPolygonF magentacurve;
+        QPolygonF yellowcurve;
         if (currentColorSpace()->profile()->hasTRC()){
             for (int i=0; i<=10; i++) {
                 QVector <qreal> linear(3);
@@ -278,7 +285,12 @@ void KisAdvancedColorSpaceSelector::fillDescription()
             }
             d->colorSpaceSelector->TRCwidget->setGreyscaleCurve(tonecurve);
         } else {
-            d->colorSpaceSelector->TRCwidget->setProfileDataAvailable(false);
+            QPolygonF curve = currentColorSpace()->estimatedTRCXYY();
+            cyancurve << curve.at(0) << curve.at(1) << curve.at(2) << curve.at(3) << curve.at(4);
+            magentacurve << curve.at(5) << curve.at(6) << curve.at(7) << curve.at(8) << curve.at(9);
+            yellowcurve << curve.at(10) << curve.at(11) << curve.at(12) << curve.at(13) << curve.at(14);
+            tonecurve << curve.at(15) << curve.at(16) << curve.at(17) << curve.at(18) << curve.at(19);
+            d->colorSpaceSelector->TRCwidget->setCMYKCurve(cyancurve, magentacurve, yellowcurve, tonecurve);
         }
         d->colorSpaceSelector->TRCwidget->setToolTip(i18nc("@info:tooltip","Estimated Gamma cannot be retrieved for CMYK."));
     }

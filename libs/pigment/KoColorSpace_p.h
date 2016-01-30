@@ -41,6 +41,7 @@ struct Q_DECL_HIDDEN KoColorSpace::Private {
     mutable KoColorConversionTransformation* transfoFromLABA16;
     
     QPolygonF gamutXYY;
+    QPolygonF TRCXYY;
 
     Deletability deletability;
 };

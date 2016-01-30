@@ -107,6 +107,14 @@ public:
      * maybe convert to 3d space in future?
      */
     QPolygonF gamutXYY() const;
+    
+    /*
+     * @returns a polygon with 5 samples per channel converted to xyY, but unlike
+     * gamutxyY it focuses on the luminance. This then can be used to visualise
+     * the approximate trc of a given colorspace.
+     */
+    QPolygonF estimatedTRCXYY() const;
+    
     //========== Channels =====================================================//
 
     /// Return a list describing all the channels this color model has. The order
