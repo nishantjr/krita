@@ -53,6 +53,7 @@ public:
     bool            profileDataAvailable;
     bool            needUpdatePixmap;
     bool            TRCGray;
+    bool            TRCRGB;
  
     int             xBias;
     int             yBias;
@@ -67,7 +68,9 @@ public:
     double          gridside;
  
     QPainter        painter;
+    QPainter        painter2;
     QPixmap         pixmap;
+    QPixmap         curvemap;
 };
 
 KisToneCurveWidget::KisToneCurveWidget(QWidget *parent) :
@@ -85,6 +88,7 @@ void KisToneCurveWidget::setGreyscaleCurve(QPolygonF poly)
 {
     d->ToneCurveGray = poly;
     d->TRCGray = true;
+    d->TRCRGB = false;
     d->profileDataAvailable = true;
     d->needUpdatePixmap = true;
 }
@@ -96,6 +100,18 @@ void KisToneCurveWidget::setRGBCurve(QPolygonF red, QPolygonF green, QPolygonF b
     d->ToneCurveBlue = blue;
     d->profileDataAvailable = true;
     d->TRCGray = false;
+    d->TRCRGB = true;
+    d->needUpdatePixmap = true;
+}
+void KisToneCurveWidget::setCMYKCurve(QPolygonF cyan, QPolygonF magenta, QPolygonF yellow, QPolygonF key)
+{
+    d->ToneCurveRed = cyan;
+    d->ToneCurveGreen = magenta;
+    d->ToneCurveBlue = yellow;
+    d->ToneCurveGray = key;
+    d->profileDataAvailable = true;
+    d->TRCGray = false;
+    d->TRCRGB = false;
     d->needUpdatePixmap = true;
 }
 void KisToneCurveWidget::setProfileDataAvailable(bool dataAvailable)
@@ -169,7 +185,9 @@ void KisToneCurveWidget::updatePixmap()
 {
     d->needUpdatePixmap = false;
     d->pixmap = QPixmap(size());
+    d->curvemap = QPixmap(size());
     d->pixmap.fill(Qt::black);
+    d->curvemap.fill(Qt::transparent);
 
     d->painter.begin(&d->pixmap);
     
@@ -184,25 +202,27 @@ void KisToneCurveWidget::updatePixmap()
     d->pxrows   = pixrows - d->yBias;
 
     d->painter.setBackground(QBrush(qRgb(0, 0, 0)));
-    
-    QPointF zero(0,0);
-    mapPoint(zero);
+    QPointF start;
     drawGrid();
     d->painter.setRenderHint(QPainter::Antialiasing);
     if (d->TRCGray && d->ToneCurveGray.size()>0){
         QPainterPath path;
-        path.moveTo(zero);
+        start = d->ToneCurveGray.at(0);
+        mapPoint(start);
+        path.moveTo(start);
         foreach (QPointF Point, d->ToneCurveGray) {
             mapPoint(Point);
             path.lineTo(Point);
         }
         d->painter.setPen(qRgb(255, 255, 255));
         d->painter.drawPath(path);
-    } else if (d->ToneCurveRed.size()>0 && d->ToneCurveGreen.size()>0 && d->ToneCurveBlue.size()>0){
+    } else if (d->TRCRGB && d->ToneCurveRed.size()>0 && d->ToneCurveGreen.size()>0 && d->ToneCurveBlue.size()>0){
         d->painter.save();
         d->painter.setCompositionMode(QPainter::CompositionMode_Screen);
         QPainterPath path;
-        path.moveTo(zero);
+        start = d->ToneCurveRed.at(0);
+        mapPoint(start);
+        path.moveTo(start);
         foreach (QPointF Point, d->ToneCurveRed) {
             mapPoint(Point);
             path.lineTo(Point);
@@ -210,7 +230,9 @@ void KisToneCurveWidget::updatePixmap()
         d->painter.setPen(qRgb(255, 0, 0));
         d->painter.drawPath(path);
         QPainterPath path2;
-        path2.moveTo(zero);
+        start = d->ToneCurveGreen.at(0);
+        mapPoint(start);
+        path2.moveTo(start);
         foreach (QPointF Point, d->ToneCurveGreen) {
             mapPoint(Point);
             path2.lineTo(Point);
@@ -218,7 +240,9 @@ void KisToneCurveWidget::updatePixmap()
         d->painter.setPen(qRgb(0, 255, 0));
         d->painter.drawPath(path2);
         QPainterPath path3;
-        path3.moveTo(zero);
+        start = d->ToneCurveBlue.at(0);
+        mapPoint(start);
+        path3.moveTo(start);
         foreach (QPointF Point, d->ToneCurveBlue) {
             mapPoint(Point);
             path3.lineTo(Point);
@@ -226,6 +250,53 @@ void KisToneCurveWidget::updatePixmap()
         d->painter.setPen(qRgb(0, 0, 255));
         d->painter.drawPath(path3);
         d->painter.restore();
+    } else {
+        d->painter2.begin(&d->curvemap);
+        d->painter2.setRenderHint(QPainter::Antialiasing);
+        //d->painter2.setCompositionMode(QPainter::CompositionMode_Multiply);
+        QPainterPath path;
+        start = d->ToneCurveRed.at(0);
+        mapPoint(start);
+        path.moveTo(start);
+        foreach (QPointF Point, d->ToneCurveRed) {
+            mapPoint(Point);
+            path.lineTo(Point);
+        }
+        d->painter2.setPen(qRgb(0, 255, 255));
+        d->painter2.drawPath(path);
+        QPainterPath path2;
+        start = d->ToneCurveGreen.at(0);
+        mapPoint(start);
+        path2.moveTo(start);
+        foreach (QPointF Point, d->ToneCurveGreen) {
+            mapPoint(Point);
+            path2.lineTo(Point);
+        }
+        d->painter2.setPen(qRgb(255, 0, 255));
+        d->painter2.drawPath(path2);
+        QPainterPath path3;
+        start = d->ToneCurveBlue.at(0);
+        mapPoint(start);
+        path3.moveTo(start);
+        foreach (QPointF Point, d->ToneCurveBlue) {
+            mapPoint(Point);
+            path3.lineTo(Point);
+        }
+        d->painter2.setPen(qRgb(255, 255, 0));
+        d->painter2.drawPath(path3);
+        QPainterPath path4;
+        start = d->ToneCurveGray.at(0);
+        mapPoint(start);
+        path4.moveTo(start);
+        foreach (QPointF Point, d->ToneCurveGray) {
+            mapPoint(Point);
+            path4.lineTo(Point);
+        }
+        d->painter2.setPen(qRgb(80, 80, 80));
+        d->painter2.drawPath(path4);
+        d->painter2.end();
+        QRect area(d->xBias, 0, d->pxcols, d->pxrows);
+        d->painter.drawPixmap(area,d->curvemap, area);
     }
     d->painter.end();
 

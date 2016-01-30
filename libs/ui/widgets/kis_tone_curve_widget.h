@@ -43,6 +43,7 @@ public:
 
     void setGreyscaleCurve(QPolygonF poly);
     void setRGBCurve(QPolygonF red, QPolygonF green, QPolygonF blue);
+    void setCMYKCurve(QPolygonF cyan, QPolygonF magenta, QPolygonF yellow, QPolygonF key);
     void setProfileDataAvailable(bool dataAvailable);
 protected:
  

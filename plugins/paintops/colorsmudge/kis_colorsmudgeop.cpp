@@ -240,195 +240,11 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
 
             m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), color);
         }
-    } else if (m_smudgeRateOption.getMode() == KisSmudgeOption::YUV_MODE){
-        QPoint pt = (srcDabRect.topLeft() + hotSpot).toPoint();
-        KoColor smudgeColor;
-        if (m_smudgeRadiusOption.isChecked()) {
-            qreal effectiveSize = 0.5 * (m_dstDabRect.width() + m_dstDabRect.height());
-            m_smudgeRadiusOption.apply(*m_smudgePainter, info, effectiveSize, pt.x(), pt.y(), painter()->device());
-
-            smudgeColor = m_smudgePainter->paintColor();
-        } else {
-            smudgeColor = painter()->paintColor();
-            // get the pixel on the canvas that lies beneath the hot spot
-            // of the dab and fill  the temporary paint device with that color
-
-            KisCrossDeviceColorPickerInt colorPicker(painter()->device(), smudgeColor);
-            colorPicker.pickColor(pt.x(), pt.y(), smudgeColor.data());
-        }
-            KoColor paintColor = painter()->paintColor();
-            m_gradientOption.apply(paintColor, m_gradient, info);
-            
-            if (paintColor.colorSpace()->colorModelId().id() == "CMYKA" || colorSpaceChanger.colorSpace()->colorModelId().id() == "XYZA") {
-                preciseColorSpace = KoColorSpaceRegistry::instance()->lab16();
-                paintColor.convertTo(preciseColorSpace);
-            }
-            smudgeColor.convertTo(paintColor.colorSpace());
-            
-            int channelnumber = abs(paintColor.colorSpace()->channelCount());
-            QVector <qreal> channelValues(channelnumber);
-            QVector <float> channelValuesF(channelnumber);
-            paintColor.colorSpace()->normalisedChannelsValue(smudgeColor.data(), channelValuesF);
-            for (int i=0;i<channelnumber;i++){
-                channelValues[i]=channelValuesF[i];
-            }
-            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
-            qreal Sy, Su, Sv = 0.0;
-            paintColor.colorSpace()->toYUV(channelValues, &Sy, &Su, &Sv);
-            smudgeColor.colorSpace()->normalisedChannelsValue(paintColor.data(), channelValuesF);
-            for (int i=0;i<channelnumber;i++){
-                channelValues[i]=channelValuesF[i];
-            }
-            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
-            qreal Py, Pu, Pv = 0.0;
-            paintColor.colorSpace()->toYUV(channelValues, &Py, &Pu, &Pv);
-            
-            qreal maxColorRate = qMax<qreal>(1.0 - m_smudgeRateOption.getRate(), 0.2);
-            m_colorRateOption.apply(*m_colorRatePainter, info, 0.0, maxColorRate, fpOpacity);
-            
-            //now first apply gamma
-            if (paintColor.colorSpace()->profile()->hasTRC()){
-                Sy = pow(Sy, 1/2.2);
-                Py = pow(Py, 1/2.2);
-            }
-            //then avarage
-            qreal Fy, Fu, Fv = 0.0;
-            if (smudgeColor.opacityF()>0){
-                Fy = ( (Sy*(255-m_colorRatePainter->opacity()) ) + (Py*m_colorRatePainter->opacity()) ) / 255.0;
-                Fu = ( (Su*(255-m_colorRatePainter->opacity()) ) + (Pu*m_colorRatePainter->opacity()) ) / 255.0;
-                Fv = ( (Sv*(255-m_colorRatePainter->opacity()) ) + (Pv*m_colorRatePainter->opacity()) ) / 255.0;
-            } else {
-                Fy = Py;
-                Fu = Pu;
-                Fv = Pv;
-            }
-            qreal alpha = (smudgeColor.opacityF()+paintColor.opacityF())*0.5;
-            //delinearize
-            if (paintColor.colorSpace()->profile()->hasTRC()){
-                Fy = pow(Fy, 2.2);
-            }
-            channelValues = paintColor.colorSpace()->fromYUV(&Fy, &Fu, &Fv);
-            paintColor.colorSpace()->profile()->delinearizeFloatValue(channelValues);
-            for (int i=0;i<channelnumber;i++){
-                channelValuesF[i]=channelValues[i];
-                if (paintColor.colorSpace()->colorDepthId().id() == "U16") {
-                channelValuesF[i] = qBound(0.0,channelValues[i],1.0);//no clue why but 16bit gives odd results otherwise...
-                }
-            }
-            paintColor.colorSpace()->fromNormalisedChannelsValue(paintColor.data(), channelValuesF);
-            paintColor.setOpacity(alpha);
-
-            m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), paintColor);
-    } else {
-            QPoint pt = (srcDabRect.topLeft() + hotSpot).toPoint();
-            KoColor smudgeColor;
-        if (m_smudgeRadiusOption.isChecked()) {
-            qreal effectiveSize = 0.5 * (m_dstDabRect.width() + m_dstDabRect.height());
-            m_smudgeRadiusOption.apply(*m_smudgePainter, info, effectiveSize, pt.x(), pt.y(), painter()->device());
-
-            smudgeColor = m_smudgePainter->paintColor();
-        } else {
-            smudgeColor = painter()->paintColor();
-            // get the pixel on the canvas that lies beneath the hot spot
-            // of the dab and fill  the temporary paint device with that color
-
-            KisCrossDeviceColorPickerInt colorPicker(painter()->device(), smudgeColor);
-            colorPicker.pickColor(pt.x(), pt.y(), smudgeColor.data());
-        }
-            KoColor paintColor = painter()->paintColor();
-            m_gradientOption.apply(paintColor, m_gradient, info);
-            
-            if (paintColor.colorSpace()->colorModelId().id() == "CMYKA" || colorSpaceChanger.colorSpace()->colorModelId().id() == "XYZA") {
-                preciseColorSpace = KoColorSpaceRegistry::instance()->lab16();
-                paintColor.convertTo(preciseColorSpace);
-            }
-            smudgeColor.convertTo(paintColor.colorSpace());
-            
-            int channelnumber = abs(paintColor.colorSpace()->channelCount());
-            QVector <double> channelValues(channelnumber);
-            QVector <float> channelValuesF(channelnumber);
-            paintColor.colorSpace()->normalisedChannelsValue(smudgeColor.data(), channelValuesF);
-            for (int i=0;i<channelnumber;i++){
-                channelValues[i]=channelValuesF[i];
-            }
-            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
-            qreal Sh, Ss, Sy = 0.0;
-            paintColor.colorSpace()->toHSY(channelValues, &Sh, &Ss, &Sy);
-            smudgeColor.colorSpace()->normalisedChannelsValue(paintColor.data(), channelValuesF);
-            for (int i=0;i<channelnumber;i++){
-                channelValues[i]=channelValuesF[i];
-            }
-            paintColor.colorSpace()->profile()->linearizeFloatValue(channelValues);
-            qreal Ph, Ps, Py = 0.0;
-            paintColor.colorSpace()->toHSY(channelValues, &Ph, &Ps, &Py);
-            
-            qreal maxColorRate = qMax<qreal>(1.0 - m_smudgeRateOption.getRate(), 0.2);
-            m_colorRateOption.apply(*m_colorRatePainter, info, 0.0, maxColorRate, fpOpacity);
-            
-            //now first apply gamma
-            if (paintColor.colorSpace()->profile()->hasTRC()){
-                Sy = pow(Sy, 1/2.2);
-                Py = pow(Py, 1/2.2);
-            }
-            //then avarage
-            //hue is a special case. We want <60 and > 240 to behave differently.
-            qreal Fh, Fs, Fy;
-            
-            if (smudgeColor.opacityF()>0){ 
-                if (qMin(Ps, Ss) > 0.0){
-                    if (qMax(Ph, Sh)-qMin(Ph, Sh)>0.5) {
-                        qreal difference = qMax(Ph, Sh)-qMin(Ph, Sh);
-                        difference = 1.0-difference;
-                        difference = (difference*m_colorRatePainter->opacity()) / 255.0;
-                        Fh = qMax(Ph, Sh)+difference;
-                        if (Fh>1.0){Fh-=1.0;}
-                    } else {
-                        Fh = ( (Sh*(255-m_colorRatePainter->opacity()) ) + (Ph*m_colorRatePainter->opacity()) ) / 255.0;
-                    }
-                } else {
-                    if (Ps>0.0) {
-                        Fh = Ph;
-                    } else {
-                        Fh = Sh;
-                    }
-                }
-                Fh = qBound(0.0,Fh,1.0);
-                if (Sy==0.0 || Sy==1.0) {//if it's not pure white or black. need to think about this in regards to floating point.
-                    Fs = Ps;
-                } else if (Py==0.0 || Py==1.0) {
-                    Fs = Ss;
-                } else {
-                    Fs = ( (Ss*(255-m_colorRatePainter->opacity()) ) + (Ps*m_colorRatePainter->opacity()) ) / 255.0;
-                }
-                Fy = ( (Sy*(255-m_colorRatePainter->opacity()) ) + (Py*m_colorRatePainter->opacity()) ) / 255.0;
-            } else {
-                Fh = Ph;
-                Fs = Ps;
-                Fy = Py;
-            }
-            
-            qreal alpha = (smudgeColor.opacityF()+paintColor.opacityF())*0.5;
-            //delinearize
-            if (paintColor.colorSpace()->profile()->hasTRC()){
-                Fy = pow(Fy, 2.2);
-            }
-            channelValues = paintColor.colorSpace()->fromHSY(&Fh, &Fs, &Fy);
-            paintColor.colorSpace()->profile()->delinearizeFloatValue(channelValues);
-            for (int i=0;i<channelnumber;i++){
-                channelValuesF[i]=channelValues[i];
-                if (paintColor.colorSpace()->colorDepthId().id() == "U16") {
-                channelValuesF[i] = qBound(0.0,channelValues[i],1.0);//no clue why but 16bit gives odd results otherwise...
-                }
-            }
-            paintColor.colorSpace()->fromNormalisedChannelsValue(paintColor.data(), channelValuesF);
-            paintColor.setOpacity(alpha);
-
-            m_smudgePainter->fill(0, 0, m_dstDabRect.width(), m_dstDabRect.height(), paintColor);
     }
 
     // if the user selected the color smudge option,
     // we will mix some color into the temporary painting device (m_tempDev)
-    if (m_colorRateOption.isChecked() && m_smudgeRateOption.getMode() != KisSmudgeOption::YUV_MODE && m_smudgeRateOption.getMode() != KisSmudgeOption::HSY_MODE) {
+    if (m_colorRateOption.isChecked() && m_smudgeRateOption.getMode()) {
         // this will apply the opacity (selected by the user) to copyPainter
         // (but fit the rate inbetween the range 0.0 to (1.0-SmudgeRate))
         qreal maxColorRate = qMax<qreal>(1.0 - m_smudgeRateOption.getRate(), 0.2);
@@ -461,9 +277,8 @@ KisSpacingInformation KisColorSmudgeOp::paintAt(const KisPaintInformation& info)
 
     // then blit the temporary painting device on the canvas at the current brush position
     // the alpha mask (maskDab) will be used here to only blit the pixels that are in the area (shape) of the brush
-    if (m_smudgeRateOption.getMode() != KisSmudgeOption::YUV_MODE && m_smudgeRateOption.getMode() != KisSmudgeOption::HSY_MODE) {
-        painter()->setCompositeOp(COMPOSITE_COPY);
-    }
+    
+    painter()->setCompositeOp(COMPOSITE_COPY);
     painter()->bitBltWithFixedSelection(m_dstDabRect.x(), m_dstDabRect.y(), m_tempDev, m_maskDab, m_dstDabRect.width(), m_dstDabRect.height());
     painter()->renderMirrorMaskSafe(m_dstDabRect, m_tempDev, 0, 0, m_maskDab, !m_dabCache->needSeparateOriginal());
 
