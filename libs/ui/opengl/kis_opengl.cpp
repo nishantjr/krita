@@ -50,45 +50,55 @@ public:
     {
         QOpenGLContext *context = 0;
         QSurfaceFormat format;
-
-        // 3.2 Compatibility
-        format.setMajorVersion( 3 );
-        format.setMinorVersion( 2 );
-        format.setProfile( QSurfaceFormat::CoreProfile );
-        setFormat( format );
-        // Create an OpenGL context
-        context = new QOpenGLContext;
-        context->setFormat( format );
-        context->create();
-        context->makeCurrent(this);
-        QOpenGLFunctions_3_2_Core *f0 = context->versionFunctions<QOpenGLFunctions_3_2_Core>();
-        version32Core = f0;
-        delete context;
+        QAbstractOpenGLFunctions *f = 0;
+        QOpenGLVersionProfile versionProfile;
 
         // 3.2 Core
-        format.setProfile( QSurfaceFormat::CompatibilityProfile );
+        format.setMajorVersion(3);
+        format.setMinorVersion(2);
+        format.setProfile(QSurfaceFormat::CoreProfile);
+        setFormat(format);
+        // Create an OpenGL context
+        context = new QOpenGLContext;
+        context->setFormat(format);
+        context->create();
+        context->makeCurrent(this);
+        versionProfile = QOpenGLVersionProfile(format);
+        versionProfile.setVersion(3, 2);
+        f = context->versionFunctions(versionProfile);
+        version32Core = f;
+        delete context;
+
+        // 3.2 Compatibility
+        format.setMajorVersion(3);
+        format.setMinorVersion(2);
+        format.setProfile(QSurfaceFormat::CompatibilityProfile);
         format.setOptions(QSurfaceFormat::DeprecatedFunctions);
-        setFormat( format );
+        setFormat(format );
         // Create an OpenGL context
         context = new QOpenGLContext;
         context->setFormat( format );
         context->create();
         context->makeCurrent(this);
-        QOpenGLFunctions_3_2_Compatibility *f1 = context->versionFunctions<QOpenGLFunctions_3_2_Compatibility>();
-        version32Compatibility = f1;
+        versionProfile = QOpenGLVersionProfile(format);
+        versionProfile.setVersion(3, 2);
+        f = context->versionFunctions(versionProfile);
+        version32Compatibility = f;
         delete context;
 
         // 2.1
-        format.setMajorVersion( 3 );
-        format.setMinorVersion( 2 );
-        setFormat( format );
+        format.setMajorVersion(2);
+        format.setMinorVersion(1);
+        setFormat(format);
         // Create an OpenGL context
         context = new QOpenGLContext;
-        context->setFormat( format );
+        context->setFormat(format);
         context->create();
         context->makeCurrent(this);
-        QOpenGLFunctions_2_1 *f2 = context->versionFunctions<QOpenGLFunctions_2_1>();
-        version32Core = f2;
+        versionProfile = QOpenGLVersionProfile(format);
+        versionProfile.setVersion(2, 1);
+        f = context->versionFunctions(versionProfile);
+        version21 = f;
         delete context;
 
     }
@@ -105,7 +115,7 @@ void KisOpenGL::initialize()
 
     {
         TestWindow w;
-        qDebug() << "3.2 core" << w.version32Core << "3.2 compatibility" << w.version32Compatibility << "2.1" << w.version21;
+        qDebug() << "3.2 core:" << w.version32Core << ", 3.2 compatibility:" << w.version32Compatibility << ", 2.1" << w.version21;
 
         // And that allows us to use opengl
         if (w.version32Compatibility) {
