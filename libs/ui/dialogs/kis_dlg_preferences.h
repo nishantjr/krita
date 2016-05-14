@@ -79,6 +79,7 @@ public:
     bool compressKra();
     bool toolOptionsInDocker();
     bool switchSelectionCtrlAlt();
+    bool narrowToolbox();
     bool convertToImageColorspaceOnImport();
 private Q_SLOTS:
     void getBackgroundImage();

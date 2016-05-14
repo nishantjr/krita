@@ -120,6 +120,7 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     m_chkCompressKra->setChecked(cfg.compressKra());
     m_radioToolOptionsInDocker->setChecked(cfg.toolOptionsInDocker());
     m_chkSwitchSelectionCtrlAlt->setChecked(cfg.switchSelectionCtrlAlt());
+    chkNarrowToolbox->setChecked(cfg.narrowToolbox());
     m_chkConvertOnImport->setChecked(cfg.convertToImageColorspaceOnImport());
 
     connect(m_bnFileName, SIGNAL(clicked()), SLOT(getBackgroundImage()));
@@ -149,6 +150,7 @@ void GeneralTab::setDefault()
     m_chkCompressKra->setChecked(cfg.compressKra(true));
     m_radioToolOptionsInDocker->setChecked(cfg.toolOptionsInDocker(true));
     m_chkSwitchSelectionCtrlAlt->setChecked(cfg.switchSelectionCtrlAlt(true));
+    chkNarrowToolbox->setChecked(cfg.narrowToolbox(true));
     m_chkConvertOnImport->setChecked(cfg.convertToImageColorspaceOnImport(true));
 
 }
@@ -219,6 +221,12 @@ bool GeneralTab::switchSelectionCtrlAlt()
     return m_chkSwitchSelectionCtrlAlt->isChecked();
 
 }
+
+bool GeneralTab::narrowToolbox()
+{
+    return chkNarrowToolbox->isChecked();
+}
+
 
 bool GeneralTab::convertToImageColorspaceOnImport()
 {
@@ -976,6 +984,7 @@ bool KisDlgPreferences::editPreferences()
         cfg.setCompressKra(dialog->m_general->compressKra());
         cfg.setToolOptionsInDocker(dialog->m_general->toolOptionsInDocker());
         cfg.setSwitchSelectionCtrlAlt(dialog->m_general->switchSelectionCtrlAlt());
+        cfg.setNarrowToolbox(dialog->m_general->narrowToolbox());
         cfg.setConvertToImageColorspaceOnImport(dialog->m_general->convertToImageColorspaceOnImport());
 
         KisPart *part = KisPart::instance();

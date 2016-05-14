@@ -67,6 +67,7 @@ public:
 
         // 3.2 Core
         format.setProfile( QSurfaceFormat::CompatibilityProfile );
+        format.setOptions(QSurfaceFormat::DeprecatedFunctions);
         setFormat( format );
         // Create an OpenGL context
         context = new QOpenGLContext;

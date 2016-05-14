@@ -1664,6 +1664,18 @@ void KisConfig::setSwitchSelectionCtrlAlt(bool value)
     KisConfigNotifier::instance()->notifyConfigChanged();
 }
 
+bool KisConfig::narrowToolbox(bool defaultValue) const
+{
+    return defaultValue ? false : m_cfg.readEntry("allowNarrowToolbox", false);
+
+}
+
+void KisConfig::setNarrowToolbox(bool value)
+{
+    m_cfg.writeEntry("allowNarrowToolbox", value);
+}
+
+
 bool KisConfig::convertToImageColorspaceOnImport(bool defaultValue) const
 {
     return defaultValue ? false : m_cfg.readEntry("ConvertToImageColorSpaceOnImport", false);

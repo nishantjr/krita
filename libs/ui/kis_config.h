@@ -468,6 +468,9 @@ public:
     bool switchSelectionCtrlAlt(bool defaultValue = false) const;
     void setSwitchSelectionCtrlAlt(bool value);
 
+    bool narrowToolbox(bool defaultValue = false) const;
+    void setNarrowToolbox(bool value);
+
     bool convertToImageColorspaceOnImport(bool defaultValue = false) const;
     void setConvertToImageColorspaceOnImport(bool value);
 
