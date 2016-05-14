@@ -102,7 +102,7 @@ extern "C" int main(int argc, char **argv)
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
 #if QT_VERSION >= 0x050600
-    if (qgetenv("KRITA_HIDPI")) {
+    if (!qgetenv("KRITA_HIDPI").isEmpty()) {
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     }
 #endif
