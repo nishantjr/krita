@@ -182,8 +182,6 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
     qreal const majorAxis = 2.0 / fWidth;
     qreal const minorAxis = 2.0 / fHeight;
 
-    qreal maskX;
-    qreal maskY;
     qreal distance;
 
     // if can't paint, stop
@@ -191,12 +189,10 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
         return 0;
     }
 
-    qreal cosa = cos(-rotation);
-    qreal sina = sin(-rotation);
-
-    qreal bcosa = cos(rotation);
-    qreal bsina = sin(rotation);
-
+    QTransform forwardRotationMatrix;
+    forwardRotationMatrix.rotateRadians(-rotation);
+    QTransform reverseRotationMatrix;
+    reverseRotationMatrix.rotateRadians(rotation);
 
     mask->setRect(dab->bounds());
     mask->initialize();
@@ -208,10 +204,9 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
 
     for (int y = 0; y <  dstHeight; y++) {
         for (int x = 0; x < dstWidth; x++) {
-            maskX = x - m_centerX;
-            maskY = y - m_centerY;
-            qreal rmaskX = cosa * maskX - sina * maskY;
-            qreal rmaskY = sina * maskX + cosa * maskY;
+            qreal maskX = x - m_centerX;
+            qreal maskY = y - m_centerY;
+            forwardRotationMatrix.map(maskX, maskY, &maskX, &maskY);
 
             distance = norme(maskX * majorAxis, maskY * minorAxis);
             if (distance > 1.0) {
@@ -234,10 +229,9 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
                 }
             }
 
-            m_deformAction->transform(&rmaskX, &rmaskY, distance);
+            m_deformAction->transform(&maskX, &maskY, distance);
+            reverseRotationMatrix.map(maskX, maskY, &maskX, &maskY);
 
-            maskX = bcosa * rmaskX - bsina * rmaskY;
-            maskY = bsina * rmaskX + bcosa * rmaskY;
 
             maskX += pos.x();
             maskY += pos.y();
