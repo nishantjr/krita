@@ -31,6 +31,7 @@
 
 #include <KoColorTransformation.h>
 #include <KoColor.h>
+#include <KoColorProfile.h>
 
 #include <kis_brush.h>
 #include <kis_global.h>
@@ -143,11 +144,20 @@ KisSpacingInformation KisBrushOp::paintAt(const KisPaintInformation& info)
     KisFixedPaintDeviceSP dab = m_dabCache->fetchDab(device->compositionSourceColorSpace(),
                                 m_colorSource,
                                 cursorPos,
-                                scale, scale * ratio,
-                                rotation,
+                                1.0, 1.0,
+                                0.0,
                                 info,
                                 m_softnessOption.apply(info),
                                 &dabRect);
+
+    QTransform transform;
+    transform.scale(scale, scale*ratio);
+    transform.rotate(rotation);
+    dab->convertFromQImage(dab->convertToQImage(
+	device->compositionSourceColorSpace()->profile())
+	    .transformed(transform),
+	device->compositionSourceColorSpace()->profile()->name()
+	);
 
     // sanity check for the size calculation code
     if (dab->bounds().size() != dabRect.size()) {
