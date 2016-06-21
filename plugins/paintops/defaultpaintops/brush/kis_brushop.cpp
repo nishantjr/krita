@@ -124,7 +124,7 @@ KisSpacingInformation KisBrushOp::paintAt(const KisPaintInformation& info)
     QPointF cursorPos =
         m_scatterOption.apply(info,
                               brush->maskWidth(scale, rotation, 0, 0, info),
-                              brush->maskHeight(scale, rotation, 0, 0, info));
+                              brush->maskHeight(scale * ratio, rotation, 0, 0, info));
 
     quint8 origOpacity = painter()->opacity();
 
@@ -140,35 +140,17 @@ KisSpacingInformation KisBrushOp::paintAt(const KisPaintInformation& info)
         m_colorSource->applyColorTransformation(m_hsvTransformation);
     }
 
-    QRect dabRect;
-    KisFixedPaintDeviceSP dab = m_dabCache->fetchDab(device->compositionSourceColorSpace(),
-                                m_colorSource,
-                                cursorPos,
-                                1.0, 1.0,
-                                0.0,
-                                info,
-                                m_softnessOption.apply(info),
-                                &dabRect);
-
+    KisFixedPaintDeviceSP dab =
+	new KisFixedPaintDevice(device->compositionSourceColorSpace());
     QTransform transform;
-    transform.scale(scale, scale*ratio);
+    transform.scale(scale, scale * ratio);
     transform.rotate(rotation);
-    dab->convertFromQImage(dab->convertToQImage(
-	device->compositionSourceColorSpace()->profile())
-	    .transformed(transform),
-	device->compositionSourceColorSpace()->profile()->name()
-	);
+    dab->convertFromQImage(brush->brushTipImage().transformed(transform),
+	    device->compositionSourceColorSpace()->profile()->name());
 
-    // sanity check for the size calculation code
-    if (dab->bounds().size() != dabRect.size()) {
-        warnKrita << "KisBrushOp: dab bounds is not dab rect. See bug 327156" << dab->bounds().size() << dabRect.size();
-    }
-
-    painter()->bltFixed(dabRect.topLeft(), dab, dab->bounds());
-
-    painter()->renderMirrorMaskSafe(dabRect,
-                                    dab,
-                                    !m_dabCache->needSeparateOriginal());
+    QPointF hotSpot = brush->hotSpot(scale, scale * ratio, rotation, info);
+    painter()->bltFixed((cursorPos - hotSpot).toPoint(), dab, dab->bounds());
+    painter()->renderMirrorMaskSafe(QRect((cursorPos - hotSpot).toPoint(), dab->bounds().size()), dab, false);
     painter()->setOpacity(origOpacity);
 
     return effectiveSpacing(scale, rotation,
