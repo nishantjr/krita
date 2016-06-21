@@ -150,7 +150,7 @@ KisSpacingInformation KisBrushOp::paintAt(const KisPaintInformation& info)
 
     QPointF hotSpot = brush->hotSpot(scale, scale * ratio, rotation, info);
     painter()->bltFixed((cursorPos - hotSpot).toPoint(), dab, dab->bounds());
-    painter()->renderMirrorMaskSafe(QRect((cursorPos - hotSpot).toPoint(), dab->bounds().size()), dab, false);
+    painter()->renderMirrorMask(QRect((cursorPos - hotSpot).toPoint(), dab->bounds().size()), dab);
     painter()->setOpacity(origOpacity);
 
     return effectiveSpacing(scale, rotation,
