@@ -17,6 +17,8 @@ cmake-init() { (
     cd "$BUILD"
     cmake "$SOURCE" -G Ninja                                           \
          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache                          \
+         -DCMAKE_CXX_COMPILER=clang++                                  \
+         -DCMAKE_CXX_FLAGS=-fcolor-diagnostics -Wno-mismatched-tags    \
          -DCMAKE_BUILD_TYPE=RelWithDebInfo                             \
          -DBUILD_TESTING=ON                                            \
          -DCMAKE_INSTALL_PREFIX="${RELEASE}"
