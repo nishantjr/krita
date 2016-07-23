@@ -1,13 +1,36 @@
-BASE=$(cd "$(dirname $_)/"; pwd)
+#!/usr/bin/env bash
+THIS_FILE=$_
+echo this file: $THIS_FILE
+# FIXME: Something's wrong with the way we detect THIS_FILE: "$_" should be
+# the first argument passed to the last run command, which will generally be
+# something like "source ../env", but for some reason, it needs to be sourced
+# twice to get the correct value
+
+BASE="$(cd $(dirname $THIS_FILE); pwd)"
+SOURCE="$BASE/src"
 BUILD="$BASE/build"
+RELEASE="$BASE/release"
 
 cmake-init() { (
     set -e
     mkdir -p "$BUILD"
     cd "$BUILD"
-    cmake "${BASE}/src"  -G Ninja                                      \
+    cmake "$SOURCE" -G Ninja                                           \
          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache                          \
          -DCMAKE_BUILD_TYPE=RelWithDebInfo                             \
          -DBUILD_TESTING=ON                                            \
-         -DCMAKE_INSTALL_PREFIX="${BASE}/release"
+         -DCMAKE_INSTALL_PREFIX="${RELEASE}"
+) }
+
+build-target() {
+    echo -e '\n\n\n\n'
+    (cd "$BUILD"; ninja $*)
+}
+build() { build-target install; }
+run() { "$RELEASE/bin/krita" $*; }
+
+docs() { (
+    mkdir -p "$BASE/doc"
+    cd "$BASE/doc"
+    kapidox_generate "$SOURCE"
 ) }
