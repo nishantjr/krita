@@ -9,10 +9,17 @@ cmake-init() { (
     set -e
     mkdir -p "$BUILD"
     cd "$BUILD"
+
+    WARNING_FLAGS="-Wno-cast-align \
+         -Wno-mismatched-tags -Wunused-parameter \
+         -Wno-inconsistent-missing-override"
     cmake "$SOURCE" -G Ninja                                           \
+         -DCMAKE_C_COMPILER_LAUNCHER=ccache                            \
+         -DCMAKE_C_COMPILER=clang                                      \
+         -DCMAKE_C_FLAGS=-fcolor-diagnostics                           \
          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache                          \
          -DCMAKE_CXX_COMPILER=clang++                                  \
-         -DCMAKE_CXX_FLAGS=-fcolor-diagnostics -Wno-mismatched-tags    \
+        "-DCMAKE_CXX_FLAGS=-fcolor-diagnostics $WARNING_FLAGS"         \
          -DCMAKE_BUILD_TYPE=RelWithDebInfo                             \
          -DBUILD_TESTING=ON                                            \
          -DCMAKE_INSTALL_PREFIX="${RELEASE}"
