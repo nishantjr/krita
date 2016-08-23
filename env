@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
-THIS_FILE=$_
-echo this file: $THIS_FILE
-# FIXME: Something's wrong with the way we detect THIS_FILE: "$_" should be
-# the first argument passed to the last run command, which will generally be
-# something like "source ../env", but for some reason, it needs to be sourced
-# twice to get the correct value
 
-BASE="$(cd $(dirname $THIS_FILE); pwd)"
+BASE="$(cd $(dirname $BASH_SOURCE); pwd)"
 SOURCE="$BASE/src"
 BUILD="$BASE/build"
 RELEASE="$BASE/release"
