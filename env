@@ -31,9 +31,3 @@ build-target() {
 }
 build() { build-target install; }
 run() { "$RELEASE/bin/krita" $*; }
-
-docs() { (
-    mkdir -p "$BASE/doc"
-    cd "$BASE/doc"
-    kapidox_generate "$SOURCE"
-) }
