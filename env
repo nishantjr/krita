@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-BASE="$(cd $(dirname $BASH_SOURCE); pwd)"
-SOURCE="$BASE/src"
-BUILD="$BASE/build"
-RELEASE="$BASE/release"
+KRITA_BASE="$(cd $(dirname $BASH_SOURCE); pwd)"
+KRITA_SOURCE="$KRITA_BASE/src"
+KRITA_BUILD="$KRITA_BASE/build"
+KRITA_RELEASE="$KRITA_BASE/release"
 
-cmake-init() { (
+krita-cmake() { (
     set -e
-    mkdir -p "$BUILD"
-    cd "$BUILD"
+    mkdir -p "$KRITA_BUILD"
+    cd "$KRITA_BUILD"
 
     WARNING_FLAGS="-Wno-cast-align \
          -Wno-mismatched-tags -Wunused-parameter \
          -Wno-inconsistent-missing-override"
-    cmake "$SOURCE" -G Ninja                                           \
+    cmake "$KRITA_SOURCE" -G Ninja                                           \
          -DCMAKE_C_COMPILER_LAUNCHER=ccache                            \
          -DCMAKE_C_COMPILER=clang                                      \
          -DCMAKE_C_FLAGS=-fcolor-diagnostics                           \
@@ -22,12 +22,12 @@ cmake-init() { (
         "-DCMAKE_CXX_FLAGS=-fcolor-diagnostics $WARNING_FLAGS"         \
          -DCMAKE_BUILD_TYPE=RelWithDebInfo                             \
          -DBUILD_TESTING=ON                                            \
-         -DCMAKE_INSTALL_PREFIX="${RELEASE}"
+         -DCMAKE_INSTALL_PREFIX="${KRITA_RELEASE}"
 ) }
 
-build-target() {
+krita-build-target() {
     echo -e '\n\n\n\n'
-    (cd "$BUILD"; ninja $*)
+    (cd "$KRITA_BUILD"; ninja $*)
 }
-build() { build-target install; }
-run() { "$RELEASE/bin/krita" $*; }
+krita-build() { krita-build-target install; }
+krita-run() { "$KRITA_RELEASE/bin/krita" $*; }
