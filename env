@@ -4,6 +4,7 @@ KRITA_BASE="$(cd $(dirname $BASH_SOURCE); pwd)"
 KRITA_SOURCE="$KRITA_BASE/src"
 KRITA_BUILD="$KRITA_BASE/build"
 KRITA_RELEASE="$KRITA_BASE/release"
+KRITA_DOCS="$KRITA_BASE/docs"
 
 krita-cmake() { (
     set -e
@@ -30,4 +31,25 @@ krita-build-target() {
     (cd "$KRITA_BUILD"; ninja $*)
 }
 krita-build() { krita-build-target install; }
-krita-run() { "$KRITA_RELEASE/bin/krita" $*; }
+krita-run() { krita-build && "$KRITA_RELEASE/bin/krita" $*; }
+krita-test() {
+    local test_glob="*$1*Test"; shift
+
+    echo -e '\n\n\n\n'
+    (
+        cd "$KRITA_BUILD"
+        find -name "$test_glob" \
+             -exec ninja {} \;  \
+             -exec {} "$@" \;
+    )
+}
+
+krita-docs() {
+    (
+        mkdir -p "$KRITA_DOCS"
+        cd "$KRITA_DOCS"
+        doxygen "$KRITA_BASE/Doxyfile" "$KRITA_SOURCE"
+    )
+}
+
+cd "$KRITA_SOURCE"
